@@ -41,7 +41,16 @@ export function ProductCard({
   badge?: string;
 }) {
   const p = product as any;
-  const labels: Array<{name: string; color?: string; textColor?: string}> = p.labels ?? [];
+
+  // Магазинът има етикет "FEATURED" — на английски, в изцяло български
+  // магазин, и не казва нищо на купувача. Скрит е тук, а не изтрит от
+  // админа, защото данните са на клиента.
+  const HIDDEN_LABELS = ['featured'];
+  const labels: Array<{name: string; color?: string; textColor?: string}> = (
+    p.labels ?? []
+  ).filter(
+    (l: {name?: string}) => !HIDDEN_LABELS.includes((l?.name ?? '').trim().toLowerCase()),
+  );
   const reviewSummary = p.reviewSummary;
 
   const variants: any[] = product.variants?.nodes ?? [];

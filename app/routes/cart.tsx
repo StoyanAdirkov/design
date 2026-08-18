@@ -28,6 +28,31 @@ export async function action({request, context}: Route.ActionArgs) {
         errors = result.userErrors;
         break;
       }
+      // Добавя няколко артикула наведнъж и прилага кода за отстъпка.
+      // Отделно действие, защото ADD_TO_CART борави с един merchandiseId,
+      // а комплектът трябва да влезе в количката като едно събитие —
+      // иначе купувачът вижда как количката се отваря три пъти.
+      case 'ADD_BUNDLE': {
+        const ids = fd.getAll('merchandiseId').map(String).filter(Boolean);
+        const result = await ctx.cart.addLines(
+          ids.map((merchandiseId) => ({merchandiseId, quantity: 1})),
+        );
+        cart = result.cart;
+        errors = result.userErrors;
+
+        const code = String(fd.get('discountCode') ?? '').trim();
+        if (code && !errors.length) {
+          try {
+            const withCode = await ctx.cart.updateDiscountCodes([code]);
+            cart = withCode.cart ?? cart;
+          } catch (error) {
+            // Липсващ или изтекъл код не бива да проваля добавянето —
+            // артикулите вече са в количката.
+            console.error('Кодът за отстъпка не се приложи:', error);
+          }
+        }
+        break;
+      }
       case 'UPDATE_CART': {
         const result = await ctx.cart.updateLines([{id: String(fd.get('lineId')), quantity: Number(fd.get('quantity'))}]);
         cart = result.cart;

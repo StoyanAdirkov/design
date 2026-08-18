@@ -13,6 +13,8 @@ import {ProductCarousel} from '~/components/ProductCarousel';
 import {SUMMER_PICKS} from '~/lib/summer';
 import {CategoryCarousel} from '~/components/CategoryCarousel';
 import {SEASONAL_CATEGORIES} from '~/lib/seasonal-categories';
+import {BundleOffer} from '~/components/BundleOffer';
+import {BUNDLE_ITEMS} from '~/lib/bundle';
 
 export const meta: Route.MetaFunction = () =>
   getSeoMeta({
@@ -63,11 +65,21 @@ export async function loader({context, request}: Route.LoaderArgs) {
     ),
   ).then((items) => items.filter(Boolean));
 
-  return {featuredCollection, recommendedProducts, summerProducts};
+  const bundleProducts = Promise.all(
+    BUNDLE_ITEMS.map(({handle}) =>
+      ctx.storefront.getProduct(handle).catch((error: Error) => {
+        console.error(`Комплект: ${handle} не се зареди`, error);
+        return null;
+      }),
+    ),
+  ).then((items) => items.filter(Boolean));
+
+  return {featuredCollection, recommendedProducts, summerProducts, bundleProducts};
 }
 
 export default function Homepage() {
-  const {featuredCollection, recommendedProducts, summerProducts} = useLoaderData<typeof loader>();
+  const {featuredCollection, recommendedProducts, summerProducts, bundleProducts} =
+    useLoaderData<typeof loader>();
 
   return (
     <div>
@@ -100,6 +112,14 @@ export default function Homepage() {
           subtitle="Всичко за двора и градината, подредено по задача"
           categories={SEASONAL_CATEGORIES}
         />
+      </div>
+
+      <div className="mt-12">
+        <Suspense fallback={<div className="h-[420px] animate-pulse rounded-2xl bg-gray-100 lg:h-[340px]" />}>
+          <Await resolve={bundleProducts}>
+            {(products) => <BundleOffer products={products as any} />}
+          </Await>
+        </Suspense>
       </div>
 
       <section className="mt-12">
