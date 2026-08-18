@@ -7,6 +7,8 @@ import {Image, RichText, useOptimisticVariant} from '@cloudcart/nitrogen-react';
 import {PriceDual} from '~/components/PriceDual';
 import {ProductTabs} from '~/components/ProductTabs';
 import {ProductCarousel} from '~/components/ProductCarousel';
+import {ProductUsage} from '~/components/ProductUsage';
+import {parseUsage} from '~/lib/usage';
 import {findCategoryPath} from '~/lib/navigation';
 import {ArrowDownTrayIcon} from '@heroicons/react/24/outline';
 import {ProductForm} from '~/components/ProductForm';
@@ -84,6 +86,10 @@ export default function ProductPage() {
         <ProductDetails product={product} variant={variant} />
       </div>
 
+      {/* „Как се използва“ стои преди описанието: практичното преди
+          маркетинговото. Идеята е от bulgarbiotic.bg. */}
+      <ProductUsage facts={parseUsage(product.descriptionHtml)} />
+
       {/* Табовете са под галерията и заемат цялата ширина, както при
           CloudCart — там „ОПИСАНИЕ“ започва под снимката, а не в
           дясната колона до цената. */}
@@ -96,7 +102,7 @@ export default function ProductPage() {
       />
 
       {/* Reviews */}
-      {(product as any).reviewSummary && (
+      {(
         <ReviewList
           reviews={(product as any).reviews?.nodes ?? []}
           summary={(product as any).reviewSummary}
@@ -229,11 +235,30 @@ function ProductDetails({product, variant}: {product: any; variant: any}) {
         </Link>
       ) : null}
 
-      {/* Rating */}
-      {product.reviewSummary && product.reviewSummary.totalCount > 0 && (
-        <div className="mt-2">
-          <StarRating rating={product.reviewSummary.averageRating} count={product.reviewSummary.totalCount} size="md" />
+      {/* Рейтинг с линк към отзивите — bulgarbiotic.bg слага „(75) Виж
+          отзивите →“ точно под заглавието и това е добър навик: цифрата
+          е доверие, а линкът спестява скролване. */}
+      {product.reviewSummary && product.reviewSummary.totalCount > 0 ? (
+        <div className="mt-2 flex flex-wrap items-center gap-3">
+          <StarRating
+            rating={product.reviewSummary.averageRating}
+            count={product.reviewSummary.totalCount}
+            size="md"
+          />
+          <a
+            href="#otzivi"
+            className="text-[0.82rem] font-semibold text-brand-dark hover:no-underline hover:brightness-110"
+          >
+            Виж отзивите →
+          </a>
         </div>
+      ) : (
+        <a
+          href="#otzivi"
+          className="mt-2 inline-block text-[0.8rem] text-gray-500 hover:text-brand-dark hover:no-underline"
+        >
+          Още няма отзиви — напиши първия →
+        </a>
       )}
 
       {/* Product Form: Price + Variants + Add to Cart */}

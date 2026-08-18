@@ -9,11 +9,24 @@ interface ReviewListProps {
 }
 
 export function ReviewList({reviews, summary, totalCount}: ReviewListProps) {
-  if (!summary || totalCount === 0) return null;
+  // Празно състояние вместо липсваща секция. Магазинът още няма нито
+  // един отзив — приложението за отзиви не е инсталирано — но мястото
+  // трябва да съществува, за да е ясно, че отзиви се събират.
+  if (!summary || totalCount === 0) {
+    return (
+      <section id="otzivi" className="mt-16 border-t border-gray-200 pt-10">
+        <h2 className="mb-3 text-2xl font-bold tracking-tight">Отзиви</h2>
+        <p className="max-w-xl text-[0.9rem] text-gray-500">
+          Този продукт още няма отзиви. Ако сте го използвали, вашето мнение
+          ще помогне на следващия купувач.
+        </p>
+      </section>
+    );
+  }
 
   return (
-    <section className="mt-16 pt-10 border-t border-gray-200">
-      <h2 className="text-2xl font-bold tracking-tight mb-8">Customer Reviews</h2>
+    <section id="otzivi" className="mt-16 pt-10 border-t border-gray-200">
+      <h2 className="text-2xl font-bold tracking-tight mb-8">Отзиви за продукта</h2>
 
       <div className="grid gap-10 md:grid-cols-[280px_1fr]">
         {/* Summary sidebar */}
