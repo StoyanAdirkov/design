@@ -17,6 +17,11 @@ export function Footer({shop, menu}: FooterProps) {
 
   return (
     <footer className="bg-gray-900 text-gray-400 mt-auto py-10 px-6">
+      {/* Бележката за ДДС стои тук, а не на продуктовата страница:
+          важи за целия сайт и е задължителна при B2C цени. */}
+      <div className="mx-auto mb-6 max-w-7xl border-b border-gray-800 pb-6 text-center text-[0.78rem] md:text-left">
+        Всички посочени цени са с включено ДДС. 1 EUR = 1.95583 BGN.
+      </div>
       <div className="max-w-7xl mx-auto flex flex-col gap-6 items-center md:flex-row md:justify-between">
         <nav className="flex flex-wrap gap-6 justify-center">
           {items.map((item) => (

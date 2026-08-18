@@ -7,6 +7,8 @@ import {AddToCartButton} from './AddToCartButton';
 import {OptionSwatch} from './OptionSwatch';
 import {QuantityPicker} from './QuantityPicker';
 import {DeliveryPromise} from './DeliveryPromise';
+import {ProductCalculator} from './ProductCalculator';
+import {parseConsumption} from '~/lib/consumption';
 
 interface ProductFormProps {
   product: any;
@@ -23,6 +25,10 @@ export function ProductForm({product, selectedVariant}: ProductFormProps) {
 
   // Цена за килограм при чувалните материали — виж lib/unit-price.ts
   const unit = getUnitPrice(product);
+
+  // Разходна норма от описанието на производителя — виж lib/consumption.ts
+  const rates = parseConsumption(product.descriptionHtml);
+  const packageKg = unit?.kg ?? 0;
 
   return (
     <div>
@@ -67,14 +73,9 @@ export function ProductForm({product, selectedVariant}: ProductFormProps) {
         ) : null}
       </div>
 
-      {/* Статусът е етикет под цената, както на живия сайт. Там е
-          лилаво хапче с текст „Продукт“ — тук е в бранд зелено, за да
-          не бие на дизайна. */}
-      {variant?.statusName ? (
-        <span className="mt-3 inline-block rounded bg-brand/12 px-2.5 py-1 text-[0.72rem] font-semibold uppercase tracking-wide text-brand-dark ring-1 ring-brand/20">
-          {variant.statusName}
-        </span>
-      ) : null}
+      {/* Етикетът със статуса е махнат по искане на клиента. За наличен
+          продукт магазинът връщаше „Продукт“, което и без това не казваше
+          нищо на купувача. Статусът се вижда в реда за наличност отдолу. */}
 
       {variant && <StockIndicator variant={variant} />}
 
@@ -141,17 +142,21 @@ export function ProductForm({product, selectedVariant}: ProductFormProps) {
         </div>
       )}
 
+      {rates.length && packageKg ? (
+        <ProductCalculator
+          rates={rates}
+          packageKg={packageKg}
+          price={Number(variant?.price?.amount ?? product.priceRange?.minVariantPrice?.amount ?? 0)}
+          currency={variant?.price?.currencyCode ?? product.priceRange?.minVariantPrice?.currencyCode}
+        />
+      ) : null}
+
       <DeliveryPromise />
 
-      {/* Уточненията са дословно от тяхната страница */}
-      <p className="mt-4 text-[0.8rem] leading-relaxed text-gray-500">
-        Възможни са разлики в цените, наличностите и продуктите в магазини и
-        складове maxxmart. София, maxxmart. онлайн магазин и maxxmart. магазини
-        и складове в страната.
-      </p>
-      <p className="mt-2 text-[0.8rem] text-gray-500">
-        Всички посочени цени са с включено ДДС.
-      </p>
+      {/* Дългото уточнение за разликите между магазините е махнато по
+          искане на клиента. Бележката за ДДС също слиза оттук, но НЕ е
+          изтрита — преместена е във футъра, защото важи за целия сайт и
+          е задължителна при B2C цени. */}
     </div>
   );
 }
