@@ -3,7 +3,7 @@ import {useEffect} from 'react';
 import {Link} from 'react-router';
 import type {Product} from '@cloudcart/nitrogen';
 import {Image} from '@cloudcart/nitrogen-react';
-import {PlusIcon, TagIcon} from '@heroicons/react/24/outline';
+import {PlusIcon, TagIcon, CheckIcon} from '@heroicons/react/24/outline';
 import {useAside} from './Aside';
 import {
   BUNDLE_ITEMS,
@@ -77,34 +77,35 @@ export function BundleOffer({products}: {products: Product[]}) {
   return (
     <section
       aria-label={BUNDLE_TITLE}
-      className="relative overflow-hidden rounded-2xl bg-ink text-white ring-1 ring-hairline"
+      className="promo-shine relative overflow-hidden rounded-2xl bg-ink text-white ring-1 ring-hairline"
     >
       <div className="tech-grid pointer-events-none absolute inset-0 opacity-60" />
-      {/* зелено сияние зад цената, за да тежи дясната страна */}
-      <div className="pointer-events-none absolute -right-24 top-1/2 size-[420px] -translate-y-1/2 rounded-full bg-brand/20 blur-3xl" />
+      {/* дишащо зелено сияние зад цената, за да тежи дясната страна */}
+      <div className="promo-breathe pointer-events-none absolute -right-24 top-1/2 size-[460px] -translate-y-1/2 rounded-full bg-brand/25 blur-3xl" />
 
-      <div className="relative grid gap-8 p-6 md:p-8 lg:grid-cols-[1fr_auto] lg:items-center lg:gap-12">
-        <div>
-          <div className="mb-5 flex flex-wrap items-center gap-3">
-            <span className="flex items-center gap-1.5 rounded-md bg-brand px-2.5 py-1 text-[0.68rem] font-bold uppercase tracking-wider text-white shadow-[0_2px_14px_rgba(60,180,74,0.6)]">
-              <TagIcon className="size-3.5" strokeWidth={2.4} />
-              −{BUNDLE_DISCOUNT_PERCENT}% на комплекта
-            </span>
-            <h2 className="text-xl font-bold tracking-tight md:text-2xl">
-              {BUNDLE_TITLE}
-            </h2>
-          </div>
-          <p className="mb-6 max-w-xl text-[0.86rem] text-gray-400">
-            {BUNDLE_SUBTITLE}
-          </p>
+      <div className="relative p-6 md:p-8 lg:p-10">
+        {/* Заглавният ред е на цялата ширина, а не в лявата колона.
+            Преди беше вътре в нея и оставяше празно поле в средата. */}
+        <div className="mb-7 flex flex-wrap items-center gap-x-4 gap-y-3">
+          <span className="promo-badge flex items-center gap-1.5 rounded-lg bg-brand px-3 py-1.5 text-[0.75rem] font-bold uppercase tracking-wider text-white">
+            <TagIcon className="size-4" strokeWidth={2.4} />
+            −{BUNDLE_DISCOUNT_PERCENT}% на комплекта
+          </span>
+          <h2 className="text-2xl font-bold tracking-tight md:text-3xl">
+            {BUNDLE_TITLE}
+          </h2>
+          <p className="w-full text-[0.92rem] text-gray-400">{BUNDLE_SUBTITLE}</p>
+        </div>
 
-          {/* трите продукта с „+“ между тях */}
-          <ul className="flex flex-wrap items-stretch gap-3">
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-stretch lg:gap-8">
+          {/* Продуктите се разпъват на цялата лява колона (flex-1 на всяка
+              карта), затова между тях и цената вече не зее празно. */}
+          <ul className="flex flex-col items-stretch gap-3 sm:flex-row">
             {picks.map(({product, variant}, i) => (
-              <li key={product.id} className="flex items-center gap-3">
+              <li key={product.id} className="flex flex-1 items-center gap-3">
                 {i > 0 ? (
                   <PlusIcon
-                    className="size-4 shrink-0 text-brand-bright"
+                    className="size-5 shrink-0 text-brand-bright"
                     strokeWidth={2.6}
                     aria-hidden="true"
                   />
@@ -112,28 +113,28 @@ export function BundleOffer({products}: {products: Product[]}) {
                 <Link
                   to={`/products/${product.handle}`}
                   prefetch="intent"
-                  className="group flex w-[150px] flex-col rounded-xl border border-hairline bg-ink-2/80 p-3 transition-colors hover:border-brand/50 hover:no-underline sm:w-[168px]"
+                  className="group flex h-full w-full flex-col rounded-xl border border-hairline bg-ink-2/80 p-4 transition-all duration-200 hover:-translate-y-1 hover:border-brand/60 hover:bg-ink-2 hover:shadow-[0_14px_30px_-16px_rgba(60,180,74,0.7)] hover:no-underline"
                 >
-                  <span className="mb-2 block overflow-hidden rounded-lg bg-white">
+                  <span className="mb-3 block overflow-hidden rounded-lg bg-white">
                     {product.featuredImage?.url ? (
                       <Image
                         data={product.featuredImage}
                         alt={product.title}
-                        className="aspect-square w-full rounded-none object-contain p-2 transition-transform duration-300 group-hover:scale-105"
+                        className="aspect-[4/3] w-full rounded-none object-contain p-3 transition-transform duration-300 group-hover:scale-105"
                       />
                     ) : (
-                      <span className="block aspect-square w-full" />
+                      <span className="block aspect-[4/3] w-full" />
                     )}
                   </span>
-                  <span className="line-clamp-2 text-[0.72rem] leading-snug text-gray-300">
+                  <span className="line-clamp-2 min-h-[2.6em] text-[0.84rem] leading-snug text-gray-200">
                     {product.title}
                   </span>
                   {variant?.title ? (
-                    <span className="mt-1 block text-[0.68rem] text-brand-bright">
+                    <span className="mt-1.5 block text-[0.74rem] text-brand-bright">
                       {variant.title}
                     </span>
                   ) : null}
-                  <span className="mt-1 text-[0.78rem] font-semibold text-white">
+                  <span className="mt-auto pt-2 text-[1rem] font-bold text-white">
                     {money(
                       Number(
                         variant?.price?.amount ??
@@ -145,52 +146,72 @@ export function BundleOffer({products}: {products: Product[]}) {
               </li>
             ))}
           </ul>
-        </div>
 
-        {/* цената */}
-        <div className="w-full rounded-xl border border-hairline bg-ink-2/70 p-6 backdrop-blur-sm lg:w-[300px]">
-          <span className="block text-[0.72rem] uppercase tracking-wider text-gray-500">
-            Поотделно
-          </span>
-          <span className="block text-[1.05rem] font-medium text-gray-500 line-through">
-            {money(total)}
-          </span>
+          {/* Цената е flex колона с mt-auto на бутона, за да е висока
+              колкото продуктите и бутонът да ляга на дъното. */}
+          <div className="flex flex-col rounded-xl border border-brand/25 bg-ink-2/70 p-6 backdrop-blur-sm">
+            <span className="block text-[0.75rem] uppercase tracking-wider text-gray-500">
+              Поотделно
+            </span>
+            <span className="block text-[1.2rem] font-medium text-gray-500 line-through">
+              {money(total)}
+            </span>
 
-          <span className="mt-4 block text-[0.72rem] uppercase tracking-wider text-brand-bright">
-            Заедно
-          </span>
-          <span className="block text-[2.1rem] font-extrabold leading-none tracking-tight text-white">
-            {money(discounted)}
-          </span>
-          <span className="mt-2 block text-[0.8rem] font-semibold text-brand-bright">
-            Спестяваш {money(saved)}
-          </span>
+            <span className="mt-5 block text-[0.75rem] uppercase tracking-wider text-brand-bright">
+              Заедно
+            </span>
+            <span className="block text-[2.7rem] font-extrabold leading-none tracking-tight text-white">
+              {money(discounted)}
+            </span>
+            <span className="mt-3 inline-flex w-fit items-center rounded-md bg-brand/15 px-2.5 py-1 text-[0.85rem] font-bold text-brand-bright ring-1 ring-brand/30">
+              Спестяваш {money(saved)}
+            </span>
 
-          {canAddAll ? (
-            <fetcher.Form method="post" action="/cart" className="mt-5">
-              <input type="hidden" name="action" value="ADD_BUNDLE" />
-              {variantIds.map((id) => (
-                <input key={id} type="hidden" name="merchandiseId" value={id} />
-              ))}
-              <input type="hidden" name="discountCode" value={BUNDLE_DISCOUNT_CODE} />
-              <button
-                type="submit"
-                disabled={isAdding}
-                className="flex h-11 w-full items-center justify-center rounded-lg bg-brand text-[0.88rem] font-semibold text-white transition-all hover:bg-brand-dark hover:shadow-[0_8px_22px_-8px_rgba(60,180,74,0.9)] disabled:opacity-60"
-              >
-                {isAdding ? 'Добавя се…' : 'Купи комплекта'}
-              </button>
-            </fetcher.Form>
-          ) : (
-            <p className="mt-5 text-[0.76rem] leading-snug text-gray-500">
-              Един от артикулите в комплекта в момента не е наличен в
-              избрания вариант. Отвори продукта, за да видиш какво има.
+            <ul className="mt-6 space-y-2.5 border-t border-hairline pt-5 text-[0.8rem] text-gray-400">
+              <li className="flex items-start gap-2">
+                <CheckIcon className="mt-0.5 size-4 shrink-0 text-brand-bright" strokeWidth={2.4} />
+                Трите артикула влизат в количката наведнъж
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckIcon className="mt-0.5 size-4 shrink-0 text-brand-bright" strokeWidth={2.4} />
+                Наличност и в трите — готово за започване
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckIcon className="mt-0.5 size-4 shrink-0 text-brand-bright" strokeWidth={2.4} />
+                Вземи безплатно от магазин или с доставка
+              </li>
+            </ul>
+
+            {canAddAll ? (
+              <fetcher.Form method="post" action="/cart" className="mt-auto pt-6">
+                <input type="hidden" name="action" value="ADD_BUNDLE" />
+                {variantIds.map((id) => (
+                  <input key={id} type="hidden" name="merchandiseId" value={id} />
+                ))}
+                <input
+                  type="hidden"
+                  name="discountCode"
+                  value={BUNDLE_DISCOUNT_CODE}
+                />
+                <button
+                  type="submit"
+                  disabled={isAdding}
+                  className="flex h-12 w-full items-center justify-center rounded-lg bg-brand text-[0.95rem] font-bold text-white transition-all hover:bg-brand-dark hover:shadow-[0_10px_26px_-8px_rgba(60,180,74,1)] disabled:opacity-60"
+                >
+                  {isAdding ? 'Добавя се…' : 'Купи комплекта'}
+                </button>
+              </fetcher.Form>
+            ) : (
+              <p className="mt-auto pt-6 text-[0.8rem] leading-snug text-gray-500">
+                Един от артикулите в комплекта в момента не е наличен в
+                избрания вариант. Отвори продукта, за да видиш какво има.
+              </p>
+            )}
+
+            <p className="mt-3 text-center text-[0.72rem] text-gray-600">
+              Отстъпката се прилага в количката
             </p>
-          )}
-
-          <p className="mt-3 text-center text-[0.68rem] text-gray-600">
-            Отстъпката се прилага в количката
-          </p>
+          </div>
         </div>
       </div>
     </section>

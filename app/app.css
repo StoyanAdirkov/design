@@ -186,3 +186,54 @@
     overflow-x: auto;
   }
 }
+
+/* ══════════════════════════════════════════════════════════════════
+   Промо ефекти за секцията с комплекта
+   ══════════════════════════════════════════════════════════════════ */
+
+/* бавно преминаващ отблясък по диагонала — като светлина по витрина */
+@keyframes promo-shine {
+  0%   { transform: translateX(-120%) skewX(-18deg); }
+  100% { transform: translateX(320%) skewX(-18deg); }
+}
+.promo-shine::after {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 28%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in oklab, var(--color-brand-bright) 16%, transparent),
+    transparent
+  );
+  animation: promo-shine 5.5s ease-in-out infinite;
+  animation-delay: 1.5s;
+  pointer-events: none;
+}
+
+/* дишащо сияние зад цената */
+@keyframes promo-breathe {
+  0%, 100% { opacity: 0.35; transform: translateY(-50%) scale(1); }
+  50%      { opacity: 0.6;  transform: translateY(-50%) scale(1.08); }
+}
+.promo-breathe {
+  animation: promo-breathe 4.5s ease-in-out infinite;
+}
+
+/* лек пулс на етикета с отстъпката */
+@keyframes promo-badge {
+  0%, 100% { box-shadow: 0 2px 14px color-mix(in oklab, var(--color-brand) 55%, transparent); }
+  50%      { box-shadow: 0 2px 26px color-mix(in oklab, var(--color-brand) 90%, transparent); }
+}
+.promo-badge {
+  animation: promo-badge 2.8s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .promo-shine::after,
+  .promo-breathe,
+  .promo-badge {
+    animation: none;
+  }
+}
