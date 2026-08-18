@@ -173,6 +173,11 @@
   will-change: transform;
 }
 
+/* отзивите са малко на брой и се четат, затова вървят по-бавно */
+.marquee-slow {
+  animation-duration: 55s;
+}
+
 /* спира при задържане, за да може човек да прочете и кликне лого */
 .group\/marquee:hover .marquee,
 .group\/marquee:focus-within .marquee {
