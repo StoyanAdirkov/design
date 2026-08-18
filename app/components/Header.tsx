@@ -11,6 +11,7 @@ import {
   ChevronDownIcon,
   MapPinIcon,
   PhoneIcon,
+  TruckIcon,
 } from '@heroicons/react/24/outline';
 import {CATEGORY_NAV, PROMO_NAV, UTILITY_NAV} from '~/lib/navigation';
 import type {NavCategory} from '~/lib/navigation';
@@ -63,14 +64,16 @@ export function Header({shop, cart}: HeaderProps) {
       {/* ── горна помощна лента ──────────────────────────────── */}
       <div className="hidden bg-ink text-gray-400 md:block">
         <div className="flex h-[34px] w-full items-center gap-6 px-5 text-[0.72rem] xl:px-8">
-          <span className="flex items-center gap-1.5 text-brand-bright">
-            <PhoneIcon className="size-3.5" />
-            <span className="text-gray-300">Нужна ви е помощ? Позвънете ни</span>
-          </span>
           <span className="flex items-center gap-1.5">
-            <MapPinIcon className="size-3.5" />
+            <MapPinIcon className="size-3.5 text-brand-bright" />
             <Link to="/pages/magazini" className="hover:text-white hover:no-underline">
-              Намери магазин
+              Намери магазин — 26 обекта в страната
+            </Link>
+          </span>
+          <span className="hidden items-center gap-1.5 lg:flex">
+            <TruckIcon className="size-3.5 text-brand-bright" />
+            <Link to="/pages/porachka-i-dostavka" className="hover:text-white hover:no-underline">
+              Доставка до 2 работни дни
             </Link>
           </span>
           <nav className="ml-auto flex items-center gap-5">
@@ -117,7 +120,7 @@ export function Header({shop, cart}: HeaderProps) {
           <Form
             method="get"
             action="/search"
-            className="group relative hidden flex-1 items-center md:flex"
+            className="group relative hidden w-full max-w-[640px] items-center md:flex"
             role="search"
           >
             <div className="absolute inset-0 -z-10 rounded-lg bg-brand/0 blur-md transition-all duration-300 group-focus-within:bg-brand/20" />
@@ -137,8 +140,24 @@ export function Header({shop, cart}: HeaderProps) {
             </button>
           </Form>
 
+          {/* телефон — води и на сегашния им сайт, аудиторията звъни */}
+          <a
+            href="tel:+35928180826"
+            className="ml-auto hidden items-center gap-2.5 rounded-lg px-2 py-1.5 transition-colors hover:bg-white/5 hover:no-underline lg:flex"
+          >
+            <span className="flex size-9 items-center justify-center rounded-lg bg-brand/10 text-brand-bright ring-1 ring-brand/25">
+              <PhoneIcon className="size-4" />
+            </span>
+            <span className="leading-tight">
+              <span className="block text-[0.68rem] text-gray-400">Нужна ви е помощ?</span>
+              <span className="block text-[0.92rem] font-semibold tracking-tight text-white">
+                02 81 80 826
+              </span>
+            </span>
+          </a>
+
           {/* икони */}
-          <div className="ml-auto flex items-center gap-1 md:ml-0 md:gap-2">
+          <div className="ml-auto flex items-center gap-1 lg:ml-2 lg:gap-2">
             <NavLink
               to="/search"
               className="flex size-10 items-center justify-center rounded-lg text-gray-300 transition-colors hover:bg-white/5 hover:text-brand-bright hover:no-underline md:hidden"

@@ -7,6 +7,7 @@ import type {Collection, Product} from '@cloudcart/nitrogen';
 import {Image} from '@cloudcart/nitrogen-react';
 import {ProductCard} from '~/components/ProductCard';
 import {HeroSlider, type HeroSlide} from '~/components/HeroSlider';
+import {UspBar} from '~/components/UspBar';
 
 export const meta: Route.MetaFunction = () =>
   getSeoMeta({
@@ -55,6 +56,7 @@ export default function Homepage() {
       {/* Банерът опира ръбовете на екрана — както е и на живия сайт.
           Отрицателните полета трият страничните отстъпи на <main>. */}
       <HeroSlider slides={HERO_SLIDES} className="-mx-4 -mt-6 sm:-mx-5 md:-mt-8 xl:-mx-8" />
+      <UspBar className="-mx-4 sm:-mx-5 xl:-mx-8" />
 
       <section className="mt-12">
         <h2 className="text-2xl font-bold tracking-tight mb-5">Препоръчани продукти</h2>
