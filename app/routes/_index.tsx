@@ -11,6 +11,8 @@ import {UspBar} from '~/components/UspBar';
 import {VendorSlider} from '~/components/VendorSlider';
 import {ProductCarousel} from '~/components/ProductCarousel';
 import {SUMMER_PICKS} from '~/lib/summer';
+import {CategoryCarousel} from '~/components/CategoryCarousel';
+import {SEASONAL_CATEGORIES} from '~/lib/seasonal-categories';
 
 export const meta: Route.MetaFunction = () =>
   getSeoMeta({
@@ -90,6 +92,14 @@ export default function Homepage() {
             )}
           </Await>
         </Suspense>
+      </div>
+
+      <div className="mt-12">
+        <CategoryCarousel
+          title="Сезонни категории"
+          subtitle="Всичко за двора и градината, подредено по задача"
+          categories={SEASONAL_CATEGORIES}
+        />
       </div>
 
       <section className="mt-12">

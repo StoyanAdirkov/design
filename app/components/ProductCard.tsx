@@ -108,13 +108,16 @@ export function ProductCard({
           </div>
         )}
 
+        {/* статусът се премести долу вляво — горе вдясно вече е сърцето */}
         {!available && statusLabel ? (
-          <span className="absolute right-5 top-5 z-10 rounded-md border border-gray-200 bg-white px-2.5 py-1 text-[0.62rem] font-bold uppercase leading-none tracking-wider text-gray-600">
+          <span className="absolute bottom-5 left-5 z-10 rounded-md border border-gray-200 bg-white px-2.5 py-1 text-[0.62rem] font-bold uppercase leading-none tracking-wider text-gray-600">
             {statusLabel}
           </span>
         ) : null}
 
-        <div className="absolute bottom-5 right-5 z-10 transition-opacity sm:opacity-0 sm:group-hover:opacity-100">
+        {/* сърцето стои горе вдясно, на същата линия като етикетите
+            отляво (top-5), за да е подравнено */}
+        <div className="absolute right-5 top-5 z-10">
           <WishlistButton productId={product.id} size="md" />
         </div>
       </div>
