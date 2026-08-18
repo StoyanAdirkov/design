@@ -24,7 +24,7 @@ export interface HeroSlide {
  */
 const AUTOPLAY_MS = 6000;
 
-export function HeroSlider({slides}: {slides: HeroSlide[]}) {
+export function HeroSlider({slides, className = ''}: {slides: HeroSlide[]; className?: string}) {
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
   const count = slides.length;
@@ -49,7 +49,7 @@ export function HeroSlider({slides}: {slides: HeroSlide[]}) {
 
   return (
     <section
-      className="relative overflow-hidden rounded-xl bg-ink-2 ring-1 ring-hairline"
+      className={`relative overflow-hidden bg-ink-2 ${className}`}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       aria-roledescription="carousel"

@@ -22,7 +22,7 @@ export function MegaMenu({category}: {category: NavCategory}) {
 
   return (
     <div className="glass-panel border-t border-brand/40 shadow-[0_28px_60px_-24px_rgba(0,0,0,0.85)]">
-      <div className="mx-auto max-w-[1400px] px-6 py-7 md:px-8">
+      <div className="w-full px-5 py-7 xl:px-8">
         {/* заглавен ред */}
         <div className="mb-5 flex items-center gap-3 border-b border-hairline pb-4">
           <span className="flex size-9 items-center justify-center rounded-md bg-brand/12 text-brand-bright ring-1 ring-brand/25">
@@ -45,7 +45,7 @@ export function MegaMenu({category}: {category: NavCategory}) {
         </div>
 
         {/* групи */}
-        <div className="scrollbar-thin-brand max-h-[62vh] overflow-y-auto md:columns-3 md:gap-8 lg:columns-4">
+        <div className="scrollbar-thin-brand max-h-[62vh] overflow-y-auto md:columns-3 md:gap-8 lg:columns-4 xl:columns-5 2xl:columns-6">
           {subs.map((sub) => (
             <div key={sub.url} className="mb-6 break-inside-avoid">
               <Link

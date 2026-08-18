@@ -52,7 +52,9 @@ export default function Homepage() {
 
   return (
     <div>
-      <HeroSlider slides={HERO_SLIDES} />
+      {/* Банерът опира ръбовете на екрана — както е и на живия сайт.
+          Отрицателните полета трият страничните отстъпи на <main>. */}
+      <HeroSlider slides={HERO_SLIDES} className="-mx-4 -mt-6 sm:-mx-5 md:-mt-8 xl:-mx-8" />
 
       <section className="mt-12">
         <h2 className="text-2xl font-bold tracking-tight mb-5">Препоръчани продукти</h2>
