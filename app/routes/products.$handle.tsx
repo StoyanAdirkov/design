@@ -8,7 +8,7 @@ import {PriceDual} from '~/components/PriceDual';
 import {ProductTabs} from '~/components/ProductTabs';
 import {ProductCarousel} from '~/components/ProductCarousel';
 import {ProductUsage} from '~/components/ProductUsage';
-import {parseUsage} from '~/lib/usage';
+import {parseUsage, stripUsageLines} from '~/lib/usage';
 import {DEMO_REVIEWS, DEMO_SUMMARY, DEMO_REVIEWS_ENABLED} from '~/lib/demo-reviews';
 import {findCategoryPath} from '~/lib/navigation';
 import {ArrowDownTrayIcon} from '@heroicons/react/24/outline';
@@ -74,6 +74,10 @@ export default function ProductPage() {
 
   // Реалните отзиви печелят винаги. Демо отзивите се ползват само
   // докато магазинът няма нито един — виж lib/demo-reviews.ts.
+  // Фактите за употреба се вадят веднъж и се ползват на две места:
+  // за самата секция и за да не се повтарят в описанието.
+  const usageFacts = parseUsage((product as any).descriptionHtml);
+
   const realCount =
     (product as any).reviews?.totalCount ?? (product as any).reviewSummary?.totalCount ?? 0;
   const usingDemo = DEMO_REVIEWS_ENABLED && realCount === 0;
@@ -103,13 +107,13 @@ export default function ProductPage() {
 
       {/* „Как се използва“ стои преди описанието: практичното преди
           маркетинговото. Идеята е от bulgarbiotic.bg. */}
-      <ProductUsage facts={parseUsage(product.descriptionHtml)} />
+      <ProductUsage facts={usageFacts} />
 
       {/* Табовете са под галерията и заемат цялата ширина, както при
           CloudCart — там „ОПИСАНИЕ“ започва под снимката, а не в
           дясната колона до цената. */}
       <ProductTabs
-        descriptionHtml={product.descriptionHtml}
+        descriptionHtml={stripUsageLines(product.descriptionHtml, usageFacts)}
         properties={(product as any).properties ?? []}
         files={(product as any).files?.nodes ?? []}
         product={product}

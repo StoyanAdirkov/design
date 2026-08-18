@@ -88,3 +88,63 @@ export function parseUsage(html?: string | null): UsageFact[] {
 
   return facts;
 }
+
+/**
+ * Маха от описанието редовете, които вече са показани в „Как се използва“.
+ *
+ * Без това читателят вижда едно и също два пъти: веднъж подредено в
+ * мрежата отгоре и веднъж като суров списък в таба. Точно това правеше
+ * долната част на страницата да изглежда разпокъсана.
+ *
+ * Маха се САМО каквото наистина е показано горе — подава се списъкът с
+ * извлечените факти, не предположение. Ако „Как се използва“ не се е
+ * появила, описанието остава непокътнато.
+ */
+export function stripUsageLines(html: string | null | undefined, facts: UsageFact[]): string {
+  if (!html || !facts.length) return html ?? '';
+
+  // Етикетите, както изглеждат в оригиналния текст
+  const labels = new Set<string>();
+  for (const f of facts) {
+    labels.add(f.label.toLowerCase());
+  }
+  // Оригиналните надписи се различават от нашите („Смесване с вода“ е
+  // „Съотношение на смесване“ в текста), затова добавяме и тях.
+  const ALIASES: Record<string, string[]> = {
+    'смесване с вода': ['съотношение на смесване'],
+    'температура на полагане': ['температура'],
+    'време за работа': ['време за'],
+    'максимална дебелина': ['максимална дебелина'],
+  };
+  for (const [ours, theirs] of Object.entries(ALIASES)) {
+    if (labels.has(ours)) theirs.forEach((t) => labels.add(t));
+  }
+
+  const isDropped = (line: string) => {
+    const sep = line.indexOf(':');
+    if (sep < 1) return false;
+    const label = line.slice(0, sep).trim().toLowerCase();
+    for (const l of labels) {
+      if (label === l || label.startsWith(l)) return true;
+    }
+    return false;
+  };
+
+  // Работим по параграфи, за да не разкъсаме форматирането
+  return html
+    .split(/(?=<p)|(?<=<\/p>)/g)
+    .filter((chunk) => {
+      const text = chunk
+        .replace(/<[^>]+>/g, ' ')
+        .replace(/&nbsp;/g, ' ')
+        .trim();
+      if (!text) return true;
+      if (isDropped(text)) return false;
+      // редовете с тирета под „Разходна норма“ също отпадат
+      if (labels.has('разходна норма') && /^[-–•]\s*\S+.*(kg|кг)\s*\/\s*(m|м)/i.test(text)) {
+        return false;
+      }
+      return true;
+    })
+    .join('');
+}

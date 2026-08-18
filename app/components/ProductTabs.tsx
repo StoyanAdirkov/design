@@ -82,21 +82,21 @@ export function ProductTabs({
       return (
         <RichText
           data={descriptionHtml as string}
-          className="prose prose-sm prose-gray max-w-none"
+          className="prose prose-sm prose-gray max-w-[75ch] leading-relaxed prose-p:my-2.5 prose-headings:text-dark prose-strong:text-dark"
         />
       );
     }
 
     if (id === 'parametri') {
       return (
-        <table className="w-full border-collapse">
+        <table className="w-full max-w-[75ch] border-collapse">
           <tbody>
             {specs.map((prop) => (
               <tr key={prop.name}>
-                <td className="w-[40%] border-b border-gray-100 py-2.5 text-[0.85rem] font-medium text-gray-500">
+                <td className="w-[38%] border-b border-gray-100 py-3 text-[0.8rem] font-semibold uppercase tracking-wide text-gray-500">
                   {prop.name}
                 </td>
-                <td className="border-b border-gray-100 py-2.5 text-[0.85rem] text-dark">
+                <td className="border-b border-gray-100 py-3 text-[0.88rem] text-dark">
                   {prop.values.join(', ')}
                 </td>
               </tr>
@@ -131,8 +131,15 @@ export function ProductTabs({
   };
 
   return (
-    <div className="mt-8 border-t border-gray-200 pt-6">
-      <div role="tablist" aria-label="Информация за продукта" className="mb-5 flex flex-wrap gap-1 border-b border-gray-200">
+    /* Оформлението следва останалите блокове на страницата — калкулатора,
+       доставката и „Как се използва“ са меки карти с рамка. Табовете бяха
+       гол текст с тънка сива черта и се четяха като друг шаблон. */
+    <div className="mt-8 overflow-hidden rounded-xl border border-gray-200 bg-white">
+      <div
+        role="tablist"
+        aria-label="Информация за продукта"
+        className="flex flex-wrap gap-1 border-b border-gray-200 bg-gray-50/70 px-2"
+      >
         {tabs.map((tab) => {
           const isActive = tab.id === active;
           return (
@@ -144,7 +151,7 @@ export function ProductTabs({
               aria-selected={isActive}
               aria-controls={`${baseId}-panel-${tab.id}`}
               onClick={() => setActive(tab.id)}
-              className={`-mb-px border-b-2 px-4 py-2.5 text-[0.88rem] font-semibold transition-colors ${
+              className={`-mb-px border-b-2 px-4 py-3.5 text-[0.88rem] font-semibold transition-colors ${
                 isActive
                   ? 'border-brand text-dark'
                   : 'border-transparent text-gray-500 hover:text-dark'
@@ -156,17 +163,19 @@ export function ProductTabs({
         })}
       </div>
 
-      {tabs.map((tab) => (
-        <div
-          key={tab.id}
-          role="tabpanel"
-          id={`${baseId}-panel-${tab.id}`}
-          aria-labelledby={`${baseId}-tab-${tab.id}`}
-          hidden={tab.id !== active}
-        >
-          {tab.id === active ? panel(tab.id) : null}
-        </div>
-      ))}
+      <div className="p-5 md:p-6">
+        {tabs.map((tab) => (
+          <div
+            key={tab.id}
+            role="tabpanel"
+            id={`${baseId}-panel-${tab.id}`}
+            aria-labelledby={`${baseId}-tab-${tab.id}`}
+            hidden={tab.id !== active}
+          >
+            {tab.id === active ? panel(tab.id) : null}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
