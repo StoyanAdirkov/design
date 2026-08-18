@@ -9,6 +9,8 @@ import {ProductCard} from '~/components/ProductCard';
 import {HeroSlider, type HeroSlide} from '~/components/HeroSlider';
 import {UspBar} from '~/components/UspBar';
 import {VendorSlider} from '~/components/VendorSlider';
+import {ProductCarousel} from '~/components/ProductCarousel';
+import {SUMMER_PICKS} from '~/lib/summer';
 
 export const meta: Route.MetaFunction = () =>
   getSeoMeta({
@@ -46,11 +48,24 @@ export async function loader({context, request}: Route.LoaderArgs) {
       return [];
     });
 
-  return {featuredCollection, recommendedProducts};
+  // Сезонните препоръки се дърпат по handle, за да са цените и
+  // наличността винаги живи, вместо да се замразяват в кода.
+  // Заявките вървят паралелно и всяка се проваля поотделно — един
+  // изтрит артикул не бива да сваля цялата начална страница.
+  const summerProducts = Promise.all(
+    SUMMER_PICKS.map((handle) =>
+      ctx.storefront.getProduct(handle).catch((error: Error) => {
+        console.error(`Сезонни препоръки: ${handle} не се зареди`, error);
+        return null;
+      }),
+    ),
+  ).then((items) => items.filter(Boolean));
+
+  return {featuredCollection, recommendedProducts, summerProducts};
 }
 
 export default function Homepage() {
-  const {featuredCollection, recommendedProducts} = useLoaderData<typeof loader>();
+  const {featuredCollection, recommendedProducts, summerProducts} = useLoaderData<typeof loader>();
 
   return (
     <div>
@@ -59,6 +74,23 @@ export default function Homepage() {
       <HeroSlider slides={HERO_SLIDES} className="-mx-4 -mt-6 sm:-mx-5 md:-mt-8 xl:-mx-8" />
       <UspBar className="-mx-4 sm:-mx-5 xl:-mx-8" />
       <VendorSlider className="-mx-4 sm:-mx-5 xl:-mx-8" />
+
+      <div className="mt-10">
+        <Suspense fallback={<CarouselSkeleton />}>
+          <Await resolve={summerProducts}>
+            {(products) => (
+              <ProductCarousel
+                title="Сезонни препоръки"
+                subtitle="Каквото ти трябва за двора и градината това лято"
+                products={products as any}
+                badge="Препоръчан"
+                viewAllUrl="/collections/gradina"
+                viewAllLabel="Виж всичко за градината"
+              />
+            )}
+          </Await>
+        </Suspense>
+      </div>
 
       <section className="mt-12">
         <h2 className="text-2xl font-bold tracking-tight mb-5">Препоръчани продукти</h2>
@@ -74,6 +106,23 @@ export default function Homepage() {
           </Await>
         </Suspense>
       </section>
+    </div>
+  );
+}
+
+/** Държи височината, докато сезонните препоръки се зареждат. */
+function CarouselSkeleton() {
+  return (
+    <div>
+      <div className="mb-4 h-8 w-56 animate-pulse rounded bg-gray-100" />
+      <div className="flex gap-4">
+        {Array.from({length: 4}).map((_, i) => (
+          <div
+            key={i}
+            className="h-[340px] flex-1 animate-pulse rounded-xl border border-gray-200 bg-gray-50"
+          />
+        ))}
+      </div>
     </div>
   );
 }
