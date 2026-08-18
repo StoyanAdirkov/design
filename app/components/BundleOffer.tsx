@@ -211,6 +211,14 @@ export function BundleOffer({products}: {products: Product[]}) {
             <p className="mt-3 text-center text-[0.72rem] text-gray-600">
               Отстъпката се прилага в количката
             </p>
+
+            <Link
+              to="/promo"
+              prefetch="intent"
+              className="mt-4 block text-center text-[0.8rem] font-semibold text-brand-bright transition-colors hover:text-white hover:no-underline"
+            >
+              Виж още пакетни предложения →
+            </Link>
           </div>
         </div>
       </div>

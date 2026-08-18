@@ -15,6 +15,7 @@ import {CategoryCarousel} from '~/components/CategoryCarousel';
 import {SEASONAL_CATEGORIES} from '~/lib/seasonal-categories';
 import {BundleOffer} from '~/components/BundleOffer';
 import {BUNDLE_ITEMS} from '~/lib/bundle';
+import {SALE_PICKS, SALE_PERCENT, SALE_ENABLED, SALE_TITLE, SALE_SUBTITLE} from '~/lib/sale';
 
 export const meta: Route.MetaFunction = () =>
   getSeoMeta({
@@ -74,12 +75,40 @@ export async function loader({context, request}: Route.LoaderArgs) {
     ),
   ).then((items) => items.filter(Boolean));
 
-  return {featuredCollection, recommendedProducts, summerProducts, bundleProducts};
+  const saleProducts = SALE_ENABLED
+    ? Promise.all(
+        SALE_PICKS.map((handle) =>
+          ctx.storefront.getProduct(handle).catch((error: Error) => {
+            console.error(`Разпродажба: ${handle} не се зареди`, error);
+            return null;
+          }),
+        ),
+      ).then((items) =>
+        // Разпродажба с неналични артикули е по-лоша от липсваща.
+        // Филтрираме тук, а не в списъка, защото наличността се мени:
+        // разпродаден артикул изчезва сам, вместо да стои под −20% с
+        // надпис „Запитване“.
+        items.filter((p: any) => p && p.availableForSale !== false),
+      )
+    : Promise.resolve([]);
+
+  return {
+    featuredCollection,
+    recommendedProducts,
+    summerProducts,
+    bundleProducts,
+    saleProducts,
+  };
 }
 
 export default function Homepage() {
-  const {featuredCollection, recommendedProducts, summerProducts, bundleProducts} =
-    useLoaderData<typeof loader>();
+  const {
+    featuredCollection,
+    recommendedProducts,
+    summerProducts,
+    bundleProducts,
+    saleProducts,
+  } = useLoaderData<typeof loader>();
 
   return (
     <div>
@@ -121,6 +150,27 @@ export default function Homepage() {
           </Await>
         </Suspense>
       </div>
+
+      {SALE_ENABLED ? (
+        <div className="mt-12">
+          <Suspense fallback={<CarouselSkeleton />}>
+            <Await resolve={saleProducts}>
+              {(products) =>
+                (products as any[]).length ? (
+                  <ProductCarousel
+                    title={SALE_TITLE}
+                    subtitle={SALE_SUBTITLE}
+                    products={products as any}
+                    salePercent={SALE_PERCENT}
+                    viewAllUrl="/promo"
+                    viewAllLabel="Виж всички оферти"
+                  />
+                ) : null
+              }
+            </Await>
+          </Suspense>
+        </div>
+      ) : null}
 
       <section className="mt-12">
         <h2 className="text-2xl font-bold tracking-tight mb-5">Препоръчани продукти</h2>

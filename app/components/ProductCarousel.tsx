@@ -16,6 +16,8 @@ interface Props {
   products: Product[];
   /** Етикет, който сяда върху всяка карта (напр. „Препоръчан“) */
   badge?: string;
+  /** Процент отстъпка, наложен на всички карти в каруселa */
+  salePercent?: number;
   viewAllUrl?: string;
   viewAllLabel?: string;
 }
@@ -25,6 +27,7 @@ export function ProductCarousel({
   subtitle,
   products,
   badge,
+  salePercent,
   viewAllUrl,
   viewAllLabel = 'Виж всички',
 }: Props) {
@@ -97,6 +100,7 @@ export function ProductCarousel({
             <ProductCard
               product={product}
               badge={badge}
+              salePercent={salePercent}
               loading={i < 4 ? 'eager' : 'lazy'}
             />
           </div>

@@ -34,11 +34,17 @@ export function ProductCard({
   product,
   loading,
   badge,
+  salePercent,
 }: {
   product: Product;
   loading?: 'eager' | 'lazy';
   /** Допълнителен етикет, зададен от секцията (напр. „Препоръчан“) */
   badge?: string;
+  /**
+   * Процент отстъпка, наложен от секцията, когато продуктът няма своя.
+   * Реалната отстъпка на продукта винаги е с предимство пред тази.
+   */
+  salePercent?: number;
 }) {
   const p = product as any;
 
@@ -68,6 +74,24 @@ export function ProductCard({
   const buyVariantId: string | null = soleVariant?.id ?? null;
   const canQuickBuy = available && !!buyVariantId && !needsChoice;
 
+  // Цената и отстъпката.
+  // Ако магазинът е задал реална стара цена (compareAtPrice), тя печели.
+  // Процентът от секцията е само резервен вариант за оформление.
+  const price = Number(product.priceRange?.minVariantPrice?.amount ?? 0);
+  const compareAt = Number(soleVariant?.compareAtPrice?.amount ?? 0);
+  const realDiscount = compareAt > price ? Math.round((1 - price / compareAt) * 100) : 0;
+
+  const percent = realDiscount || (salePercent ?? 0);
+  const oldPrice = realDiscount ? compareAt : percent ? price / (1 - percent / 100) : 0;
+  const showDiscount = percent > 0 && oldPrice > price;
+
+  const money = (n: number) =>
+    new Intl.NumberFormat('bg-BG', {
+      style: 'currency',
+      currency: product.priceRange?.minVariantPrice?.currencyCode ?? 'EUR',
+      minimumFractionDigits: 2,
+    }).format(n);
+
   return (
     <article className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-gray-200 bg-white transition-all duration-200 hover:-translate-y-1 hover:border-brand/45 hover:shadow-[0_14px_32px_-16px_rgba(60,180,74,0.55)]">
       <div className="relative p-3">
@@ -92,7 +116,13 @@ export function ProductCard({
         </div>
 
         {/* етикети — горе вляво, в бранд зелено вместо сивото по подразбиране */}
-        {(badge || labels.length > 0) && (
+        {showDiscount ? (
+          <span className="absolute left-5 top-5 z-10 rounded-md bg-red-600 px-2.5 py-1 text-[0.66rem] font-bold uppercase leading-none tracking-wider text-white shadow-[0_2px_10px_rgba(220,38,38,0.55)]">
+            −{percent}%
+          </span>
+        ) : null}
+
+        {(badge || labels.length > 0) && !showDiscount && (
           <div className="absolute left-5 top-5 z-10 flex flex-wrap gap-1.5">
             {badge ? (
               <span className="rounded-md bg-brand px-2.5 py-1 text-[0.62rem] font-bold uppercase leading-none tracking-wider text-white shadow-[0_2px_10px_rgba(60,180,74,0.5)]">
@@ -155,7 +185,16 @@ export function ProductCard({
         ) : null}
 
         <div className="mt-auto pt-3">
-          <span className="block text-[1.05rem] font-bold tracking-tight text-dark">
+          {showDiscount ? (
+            <span className="mb-0.5 block text-[0.8rem] font-medium text-gray-400 line-through">
+              {money(oldPrice)}
+            </span>
+          ) : null}
+          <span
+            className={`block text-[1.05rem] font-bold tracking-tight ${
+              showDiscount ? 'text-red-600' : 'text-dark'
+            }`}
+          >
             <Money data={product.priceRange.minVariantPrice} />
           </span>
 
