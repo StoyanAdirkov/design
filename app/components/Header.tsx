@@ -192,7 +192,7 @@ export function Header({shop, cart}: HeaderProps) {
         onMouseLeave={scheduleClose}
       >
         <div className="mx-auto flex h-12 max-w-[1400px] items-stretch px-6 md:px-8">
-          <nav className="flex flex-1 items-stretch justify-between" aria-label="Категории">
+          <nav className="scrollbar-none flex min-w-0 flex-1 items-stretch justify-between overflow-x-auto" aria-label="Категории">
             {CATEGORY_NAV.map((cat) => (
               <div
                 key={cat.url}
@@ -205,7 +205,7 @@ export function Header({shop, cart}: HeaderProps) {
                 <Link
                   to={cat.url}
                   data-open={openCat === cat.url}
-                  className="nav-underline relative flex items-center gap-1.5 whitespace-nowrap px-2 text-[0.76rem] font-medium tracking-tight text-gray-300 transition-colors hover:text-white hover:no-underline data-[open=true]:text-white xl:px-3 xl:text-[0.8rem]"
+                  className="nav-underline relative flex items-center gap-1.5 whitespace-nowrap px-2 text-[0.76rem] font-medium tracking-tight text-gray-300 transition-colors hover:text-white hover:no-underline data-[open=true]:text-white xl:px-2.5 2xl:px-3 2xl:text-[0.8rem]"
                   prefetch="intent"
                   onFocus={() => setOpenCat(cat.url)}
                   aria-haspopup="true"
@@ -213,7 +213,7 @@ export function Header({shop, cart}: HeaderProps) {
                 >
                   <CategoryIcon
                     name={cat.icon}
-                    className="hidden size-4 shrink-0 text-brand-bright/80 transition-colors xl:block"
+                    className="hidden size-4 shrink-0 text-brand-bright/80 transition-colors 2xl:block"
                   />
                   {cat.label}
                 </Link>
@@ -222,12 +222,12 @@ export function Header({shop, cart}: HeaderProps) {
           </nav>
 
           {/* промо линкове — остават по желание на клиента */}
-          <div className="flex items-stretch border-l border-hairline pl-2">
+          <div className="flex shrink-0 items-stretch border-l border-hairline pl-2">
             {PROMO_NAV.map((item) => (
               <Link
                 key={item.url}
                 to={item.url}
-                className="flex items-center whitespace-nowrap px-2.5 text-[0.76rem] font-semibold tracking-tight text-brand-bright transition-colors hover:text-white hover:no-underline xl:px-3 xl:text-[0.8rem]"
+                className="flex items-center whitespace-nowrap px-2.5 text-[0.76rem] font-semibold tracking-tight text-brand-bright transition-colors hover:text-white hover:no-underline 2xl:px-3 2xl:text-[0.8rem]"
                 prefetch="intent"
               >
                 {item.title}
