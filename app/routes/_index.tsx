@@ -6,8 +6,31 @@ import {getSeoMeta} from '@cloudcart/nitrogen';
 import type {Collection, Product} from '@cloudcart/nitrogen';
 import {Image} from '@cloudcart/nitrogen-react';
 import {ProductCard} from '~/components/ProductCard';
+import {HeroSlider, type HeroSlide} from '~/components/HeroSlider';
 
-export const meta: Route.MetaFunction = () => getSeoMeta({title: 'Nitrogen | Home', description: 'Modern headless commerce'});
+export const meta: Route.MetaFunction = () =>
+  getSeoMeta({
+    title: 'maxxmart | Всичко за строителството и дома',
+    description:
+      'Строителни материали, инструменти, ВиК, отопление, осветление и обзавеждане — над 6900 продукта на едно място.',
+  });
+
+/**
+ * Банерите на клиента от www.maxxmart.eu.
+ * Живеят на CloudCart CDN-а на магазина (store 13688), затова се
+ * подават директно — HeroSlider ги изравнява до една пропорция.
+ */
+const HERO_SLIDES: HeroSlide[] = [
+  {
+    src: 'https://cdncloudcart.com/13688/files/image/maxxmart_kotsyfunky.jpg',
+    alt: 'maxxmart Клубна карта — вземи си отстъпките',
+    url: '/pages/promocards',
+  },
+  {
+    src: 'https://cdncloudcart.com/13688/files/image/website-banner-nexe-autumn-2026.png',
+    alt: 'NEXE есен 2026',
+  },
+];
 
 export async function loader({context, request}: Route.LoaderArgs) {
   const ctx = await getContext(context, request);
@@ -29,10 +52,11 @@ export default function Homepage() {
 
   return (
     <div>
-      <FeaturedCollection collection={featuredCollection} />
-      <section>
-        <h2 className="text-2xl font-bold tracking-tight mb-5">Recommended Products</h2>
-        <Suspense fallback={<div>Loading...</div>}>
+      <HeroSlider slides={HERO_SLIDES} />
+
+      <section className="mt-12">
+        <h2 className="text-2xl font-bold tracking-tight mb-5">Препоръчани продукти</h2>
+        <Suspense fallback={<div className="text-gray-500">Зареждане…</div>}>
           <Await resolve={recommendedProducts}>
             {(products) => (
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">

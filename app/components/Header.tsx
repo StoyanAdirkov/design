@@ -1,8 +1,21 @@
-import {NavLink, Link, Await} from 'react-router';
-import {Suspense} from 'react';
+import {NavLink, Link, Await, Form} from 'react-router';
+import {Suspense, useState, useRef, useCallback, useEffect} from 'react';
 import type {Shop, Menu, CartData} from '@cloudcart/nitrogen';
 import {useAside} from './Aside';
-import {MagnifyingGlassIcon, ShoppingBagIcon, UserIcon} from '@heroicons/react/24/outline';
+import {
+  MagnifyingGlassIcon,
+  ShoppingBagIcon,
+  UserIcon,
+  Bars3Icon,
+  XMarkIcon,
+  ChevronDownIcon,
+  MapPinIcon,
+  PhoneIcon,
+} from '@heroicons/react/24/outline';
+import {CATEGORY_NAV, PROMO_NAV, UTILITY_NAV} from '~/lib/navigation';
+import type {NavCategory} from '~/lib/navigation';
+import {MegaMenu} from './MegaMenu';
+import {CategoryIcon} from './CategoryIcon';
 
 interface HeaderProps {
   shop: Shop;
@@ -10,59 +23,329 @@ interface HeaderProps {
   cart: Promise<CartData | null>;
 }
 
-const FALLBACK_MENU = [
-  {title: 'Categories', url: '/collections'},
-  {title: 'Products', url: '/products'},
-  {title: 'Blog', url: '/blogs'},
-];
+const LOGO_SRC = 'https://www.maxxmart.eu/cdn/img/logo/4/4.svg?v=1777460209';
 
-export function Header({shop, menu, cart}: HeaderProps) {
-  const items = menu?.items ?? FALLBACK_MENU;
+export function Header({shop, cart}: HeaderProps) {
   const {open} = useAside();
+  const [openCat, setOpenCat] = useState<string | null>(null);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // малко забавяне при напускане, за да не се затваря панелът,
+  // докато мишката пресича процепа между лентата и панела
+  const scheduleClose = useCallback(() => {
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+    closeTimer.current = setTimeout(() => setOpenCat(null), 140);
+  }, []);
+
+  const cancelClose = useCallback(() => {
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+  }, []);
+
+  useEffect(() => () => {
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+  }, []);
+
+  // Escape затваря мегаменюто
+  useEffect(() => {
+    if (!openCat) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpenCat(null);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [openCat]);
+
+  const active = CATEGORY_NAV.find((c) => c.url === openCat) ?? null;
 
   return (
-    <header className="flex items-center bg-light border-b border-gray-200 h-16 px-6 md:px-8 sticky top-0 z-10">
-      <Link to="/" className="text-xl font-extrabold tracking-tight text-dark hover:no-underline">{shop.name}</Link>
+    <header className="sticky top-0 z-50">
+      {/* ── горна помощна лента ──────────────────────────────── */}
+      <div className="hidden bg-ink text-gray-400 md:block">
+        <div className="mx-auto flex h-[34px] max-w-[1400px] items-center gap-6 px-6 text-[0.72rem] md:px-8">
+          <span className="flex items-center gap-1.5 text-brand-bright">
+            <PhoneIcon className="size-3.5" />
+            <span className="text-gray-300">Нужна ви е помощ? Позвънете ни</span>
+          </span>
+          <span className="flex items-center gap-1.5">
+            <MapPinIcon className="size-3.5" />
+            <Link to="/pages/magazini" className="hover:text-white hover:no-underline">
+              Намери магазин
+            </Link>
+          </span>
+          <nav className="ml-auto flex items-center gap-5">
+            {UTILITY_NAV.map((item) => (
+              <Link
+                key={item.url}
+                to={item.url}
+                className="transition-colors hover:text-white hover:no-underline"
+                prefetch="intent"
+              >
+                {item.title}
+              </Link>
+            ))}
+          </nav>
+        </div>
+      </div>
 
-      <nav className="hidden md:flex gap-6 ml-10">
-        {items.map((item) => (
-          <NavLink
-            key={item.title}
-            to={item.url}
-            className={({isActive}) =>
-              `text-sm font-medium transition-colors duration-150 hover:text-dark hover:no-underline ${isActive ? 'text-dark font-semibold' : 'text-gray-600'}`
-            }
-            prefetch="intent"
+      {/* ── основна лента: лого · търсачка · икони ────────────── */}
+      <div className="relative bg-ink-2">
+        <div className="tech-grid pointer-events-none absolute inset-0 opacity-[0.55]" />
+        <div className="relative mx-auto flex h-[68px] max-w-[1400px] items-center gap-4 px-6 md:h-[76px] md:gap-8 md:px-8">
+          {/* мобилен бургер */}
+          <button
+            type="button"
+            className="text-gray-300 transition-colors hover:text-brand-bright lg:hidden"
+            onClick={() => setMobileOpen((v) => !v)}
+            aria-label={mobileOpen ? 'Затвори менюто' : 'Отвори менюто'}
+            aria-expanded={mobileOpen}
           >
-            {item.title}
-          </NavLink>
-        ))}
-      </nav>
+            {mobileOpen ? <Bars3Icon className="size-6" /> : <Bars3Icon className="size-6" />}
+          </button>
 
-      <div className="flex items-center gap-3 ml-auto">
-        <NavLink to="/search" className="text-gray-500 hover:text-dark transition-colors duration-150 p-1" aria-label="Search">
-          <MagnifyingGlassIcon className="size-5" />
-        </NavLink>
-        <NavLink to="/account" className="text-gray-500 hover:text-dark transition-colors duration-150 p-1" aria-label="Account">
-          <UserIcon className="size-5" />
-        </NavLink>
+          <Link to="/" className="shrink-0 hover:no-underline" aria-label={shop.name || 'maxxmart'}>
+            <img
+              src={LOGO_SRC}
+              alt={shop.name || 'maxxmart'}
+              width={168}
+              height={67}
+              className="h-9 w-auto rounded-none md:h-11"
+            />
+          </Link>
+
+          {/* търсачка */}
+          <Form
+            method="get"
+            action="/search"
+            className="group relative hidden flex-1 items-center md:flex"
+            role="search"
+          >
+            <div className="absolute inset-0 -z-10 rounded-lg bg-brand/0 blur-md transition-all duration-300 group-focus-within:bg-brand/20" />
+            <input
+              type="search"
+              name="q"
+              placeholder="Търси сред 6900+ продукта…"
+              aria-label="Търсене в магазина"
+              className="h-11 w-full rounded-lg border border-hairline bg-ink/80 pl-4 pr-12 text-sm text-white placeholder:text-gray-500 transition-colors focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand/60"
+            />
+            <button
+              type="submit"
+              aria-label="Търси"
+              className="absolute right-1.5 top-1.5 flex size-8 items-center justify-center rounded-md bg-brand text-white transition-colors hover:bg-brand-dark"
+            >
+              <MagnifyingGlassIcon className="size-4" strokeWidth={2.2} />
+            </button>
+          </Form>
+
+          {/* икони */}
+          <div className="ml-auto flex items-center gap-1 md:ml-0 md:gap-2">
+            <NavLink
+              to="/search"
+              className="flex size-10 items-center justify-center rounded-lg text-gray-300 transition-colors hover:bg-white/5 hover:text-brand-bright hover:no-underline md:hidden"
+              aria-label="Търсене"
+            >
+              <MagnifyingGlassIcon className="size-5" />
+            </NavLink>
+
+            <NavLink
+              to="/account"
+              className="flex items-center gap-2 rounded-lg px-2 py-2 text-gray-300 transition-colors hover:bg-white/5 hover:text-brand-bright hover:no-underline"
+              aria-label="Вход в профила"
+            >
+              <UserIcon className="size-5" />
+              <span className="hidden text-xs font-medium leading-tight lg:block">
+                Вход
+              </span>
+            </NavLink>
+
+            <button
+              type="button"
+              className="relative flex items-center gap-2 rounded-lg px-2 py-2 text-gray-300 transition-colors hover:bg-white/5 hover:text-brand-bright"
+              onClick={() => open('cart')}
+              aria-label="Отвори количката"
+            >
+              <span className="relative">
+                <ShoppingBagIcon className="size-5" />
+                <Suspense>
+                  <Await resolve={cart}>
+                    {(resolved) =>
+                      resolved && resolved.totalQuantity > 0 ? (
+                        <span className="absolute -right-2 -top-1.5 flex size-[18px] items-center justify-center rounded-full bg-brand text-[0.6rem] font-bold text-white shadow-[0_0_10px_rgba(60,180,74,0.9)]">
+                          {resolved.totalQuantity}
+                        </span>
+                      ) : null
+                    }
+                  </Await>
+                </Suspense>
+              </span>
+              <span className="hidden text-xs font-medium leading-tight lg:block">
+                Количка
+              </span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* ── категорийна лента с мегаменю ──────────────────────── */}
+      <div
+        className="relative hidden border-t border-hairline bg-ink edge-glow lg:block"
+        onMouseLeave={scheduleClose}
+      >
+        <div className="mx-auto flex h-12 max-w-[1400px] items-stretch px-6 md:px-8">
+          <nav className="flex flex-1 items-stretch justify-between" aria-label="Категории">
+            {CATEGORY_NAV.map((cat) => (
+              <div
+                key={cat.url}
+                className="flex items-stretch"
+                onMouseEnter={() => {
+                  cancelClose();
+                  setOpenCat(cat.url);
+                }}
+              >
+                <Link
+                  to={cat.url}
+                  data-open={openCat === cat.url}
+                  className="nav-underline relative flex items-center gap-1.5 whitespace-nowrap px-2 text-[0.76rem] font-medium tracking-tight text-gray-300 transition-colors hover:text-white hover:no-underline data-[open=true]:text-white xl:px-3 xl:text-[0.8rem]"
+                  prefetch="intent"
+                  onFocus={() => setOpenCat(cat.url)}
+                  aria-haspopup="true"
+                  aria-expanded={openCat === cat.url}
+                >
+                  <CategoryIcon
+                    name={cat.icon}
+                    className="hidden size-4 shrink-0 text-brand-bright/80 transition-colors xl:block"
+                  />
+                  {cat.label}
+                </Link>
+              </div>
+            ))}
+          </nav>
+
+          {/* промо линкове — остават по желание на клиента */}
+          <div className="flex items-stretch border-l border-hairline pl-2">
+            {PROMO_NAV.map((item) => (
+              <Link
+                key={item.url}
+                to={item.url}
+                className="flex items-center whitespace-nowrap px-2.5 text-[0.76rem] font-semibold tracking-tight text-brand-bright transition-colors hover:text-white hover:no-underline xl:px-3 xl:text-[0.8rem]"
+                prefetch="intent"
+              >
+                {item.title}
+              </Link>
+            ))}
+          </div>
+        </div>
+
+        {/* панелът */}
+        {active ? (
+          <div
+            className="absolute inset-x-0 top-full"
+            onMouseEnter={cancelClose}
+            onMouseLeave={scheduleClose}
+          >
+            <MegaMenu category={active} />
+          </div>
+        ) : null}
+      </div>
+
+      {/* ── мобилно меню ─────────────────────────────────────── */}
+      {mobileOpen ? (
+        <MobileNav onClose={() => setMobileOpen(false)} />
+      ) : null}
+    </header>
+  );
+}
+
+function MobileNav({onClose}: {onClose: () => void}) {
+  const [expanded, setExpanded] = useState<string | null>(null);
+
+  return (
+    <div className="glass-panel max-h-[calc(100vh-68px)] overflow-y-auto border-t border-brand/40 lg:hidden">
+      <div className="px-6 py-4">
+        <Form method="get" action="/search" className="relative mb-4" role="search">
+          <input
+            type="search"
+            name="q"
+            placeholder="Търси…"
+            aria-label="Търсене"
+            className="h-11 w-full rounded-lg border border-hairline bg-ink/80 pl-4 pr-11 text-sm text-white placeholder:text-gray-500 focus:border-brand focus:outline-none"
+          />
+          <button
+            type="submit"
+            aria-label="Търси"
+            className="absolute right-1.5 top-1.5 flex size-8 items-center justify-center rounded-md bg-brand text-white"
+          >
+            <MagnifyingGlassIcon className="size-4" />
+          </button>
+        </Form>
+
+        <ul className="divide-y divide-hairline">
+          {CATEGORY_NAV.map((cat) => (
+            <li key={cat.url}>
+              <div className="flex items-center">
+                <Link
+                  to={cat.url}
+                  onClick={onClose}
+                  className="flex flex-1 items-center gap-2.5 py-3 text-sm text-gray-200 hover:no-underline"
+                >
+                  <CategoryIcon name={cat.icon} className="size-4 text-brand-bright" />
+                  {cat.title}
+                </Link>
+                {cat.children?.length ? (
+                  <button
+                    type="button"
+                    className="p-2 text-gray-400"
+                    aria-label={`Покажи подкатегории на ${cat.title}`}
+                    aria-expanded={expanded === cat.url}
+                    onClick={() => setExpanded(expanded === cat.url ? null : cat.url)}
+                  >
+                    <ChevronDownIcon
+                      className={`size-4 transition-transform ${expanded === cat.url ? 'rotate-180' : ''}`}
+                    />
+                  </button>
+                ) : null}
+              </div>
+              {expanded === cat.url ? (
+                <ul className="pb-3 pl-7">
+                  {cat.children?.map((sub) => (
+                    <li key={sub.url}>
+                      <Link
+                        to={sub.url}
+                        onClick={onClose}
+                        className="block py-1.5 text-[0.82rem] text-gray-400 hover:text-white hover:no-underline"
+                      >
+                        {sub.title}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+            </li>
+          ))}
+        </ul>
+
+        <div className="mt-4 flex gap-3 border-t border-hairline pt-4">
+          {PROMO_NAV.map((item) => (
+            <Link
+              key={item.url}
+              to={item.url}
+              onClick={onClose}
+              className="rounded-md border border-brand/40 px-3 py-1.5 text-xs font-semibold text-brand-bright hover:no-underline"
+            >
+              {item.title}
+            </Link>
+          ))}
+        </div>
+
         <button
-          className="text-gray-500 hover:text-dark transition-colors duration-150 p-1 relative"
-          onClick={() => open('cart')}
-          aria-label="Open cart"
+          type="button"
+          onClick={onClose}
+          className="mt-4 flex w-full items-center justify-center gap-2 rounded-md bg-white/5 py-2 text-xs text-gray-400"
         >
-          <ShoppingBagIcon className="size-5" />
-          <Suspense>
-            <Await resolve={cart}>
-              {(resolvedCart) =>
-                resolvedCart && resolvedCart.totalQuantity > 0 ? (
-                  <span className="absolute -top-1 -right-1.5 bg-brand text-white rounded-full size-[18px] text-[0.6rem] font-bold flex items-center justify-center">{resolvedCart.totalQuantity}</span>
-                ) : null
-              }
-            </Await>
-          </Suspense>
+          <XMarkIcon className="size-4" />
+          Затвори
         </button>
       </div>
-    </header>
+    </div>
   );
 }

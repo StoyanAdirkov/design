@@ -5,8 +5,22 @@
 }
 
 @theme {
+  /* ── Бранд (от логото на maxxmart) ───────────────────────────── */
+  --color-brand: #3cb44a;          /* зеленото от логото */
+  --color-brand-bright: #55d966;   /* по-ярък вариант за акценти/глоу */
+  --color-brand-dark: #2a8f37;     /* hover / натиснато */
+  --color-brand-deep: #16351d;     /* тъмна зелена основа */
+
+  /* ── Тъмна "футуристична" основа ─────────────────────────────── */
+  --color-ink: #070b0e;            /* най-тъмното — фон на хедъра */
+  --color-ink-2: #0d1317;          /* панели */
+  --color-ink-3: #141d23;          /* издигнати повърхности */
+  --color-hairline: #1e2b33;       /* граници 1px */
+
   --color-dark: #0a0a0a;
   --color-light: #ffffff;
+  --color-mist: #f2f2f2;           /* светлото сиво от логото */
+
   --color-gray-50: #fafafa;
   --color-gray-100: #f5f5f5;
   --color-gray-200: #e5e5e5;
@@ -18,9 +32,13 @@
   --color-gray-800: #262626;
   --color-gray-900: #171717;
   --color-gray-950: #0a0a0a;
-  --color-brand: #6366f1;
-  --color-brand-dark: #4f46e5;
-  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  /* височина на хедъра — ползва се и за offset на мегаменюто */
+  --header-utility-h: 34px;
+  --header-main-h: 76px;
+  --header-nav-h: 48px;
 }
 
 @layer base {
@@ -67,4 +85,64 @@
       display: none;
     }
   }
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   maxxmart — футуристични помощни класове
+   ══════════════════════════════════════════════════════════════════ */
+@layer utilities {
+  /* тънка неонова линия под хедъра */
+  .edge-glow {
+    box-shadow:
+      0 1px 0 0 color-mix(in oklab, var(--color-brand) 45%, transparent),
+      0 6px 24px -12px color-mix(in oklab, var(--color-brand) 60%, transparent);
+  }
+
+  /* стъклен панел за мегаменюто */
+  .glass-panel {
+    background: color-mix(in oklab, var(--color-ink-2) 96%, transparent);
+    backdrop-filter: saturate(140%) blur(14px);
+    -webkit-backdrop-filter: saturate(140%) blur(14px);
+  }
+
+  /* фина техно-мрежа за фон */
+  .tech-grid {
+    background-image:
+      linear-gradient(to right, color-mix(in oklab, var(--color-brand) 8%, transparent) 1px, transparent 1px),
+      linear-gradient(to bottom, color-mix(in oklab, var(--color-brand) 8%, transparent) 1px, transparent 1px);
+    background-size: 44px 44px;
+  }
+
+  /* светещ ръб при hover на елемент от менюто */
+  .nav-underline::after {
+    content: '';
+    position: absolute;
+    left: 0.75rem;
+    right: 0.75rem;
+    bottom: 0;
+    height: 2px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, transparent, var(--color-brand-bright), transparent);
+    transform: scaleX(0);
+    transition: transform 0.22s ease;
+  }
+  .nav-underline:hover::after,
+  .nav-underline[data-open='true']::after {
+    transform: scaleX(1);
+  }
+
+  /* скриване на скролбар, но със скрол */
+  .scrollbar-thin-brand {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in oklab, var(--color-brand) 55%, transparent) transparent;
+  }
+  .scrollbar-thin-brand::-webkit-scrollbar { width: 6px; height: 6px; }
+  .scrollbar-thin-brand::-webkit-scrollbar-thumb {
+    background: color-mix(in oklab, var(--color-brand) 55%, transparent);
+    border-radius: 999px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-underline::after { transition: none; }
 }

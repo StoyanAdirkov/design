@@ -7,7 +7,7 @@ import {CartDrawer} from '~/components/CartDrawer';
 import {PageLayout} from '~/components/PageLayout';
 import '~/app.css';
 
-export const meta: MetaFunction = () => getSeoMeta({title: 'Nitrogen | Modern Commerce'});
+export const meta: MetaFunction = () => getSeoMeta({title: 'maxxmart | Всичко за строителството и дома'});
 
 export const shouldRevalidate: Route.ShouldRevalidateFunction = ({formMethod, currentUrl, nextUrl}) => {
   if (formMethod && formMethod !== 'GET') return true;
@@ -31,10 +31,12 @@ export async function loader({context, request}: Route.LoaderArgs) {
 
 export function Layout({children}: {children: React.ReactNode}) {
   return (
-    <html lang="en">
+    <html lang="bg">
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        <meta name="theme-color" content="#3cb44a" />
         <Meta />
         <Links />
       </head>
@@ -49,12 +51,12 @@ export function Layout({children}: {children: React.ReactNode}) {
 
 export default function App() {
   const data = useRouteLoaderData<typeof loader>('root');
-  const shop = data?.shop ?? {name: 'Nitrogen', description: null};
+  const shop = data?.shop ?? {name: 'maxxmart', description: null};
   const cart = data?.cart ?? Promise.resolve(null);
 
   return (
     <AsideProvider>
-      <Aside type="cart" heading="CART">
+      <Aside type="cart" heading="КОЛИЧКА">
         <CartDrawer cart={cart} />
       </Aside>
       <PageLayout
@@ -80,7 +82,7 @@ export function ErrorBoundary() {
         <div className="text-center py-16">
           <h1 className="text-8xl font-extrabold text-gray-200 leading-none">{status}</h1>
           <p className="text-gray-500 mt-2">{msg}</p>
-          <a href="/" className="text-brand font-semibold mt-4 inline-block">Go Home</a>
+          <a href="/" className="text-brand font-semibold mt-4 inline-block">Към началната страница</a>
         </div>
       </main>
     </div>

@@ -1,0 +1,135 @@
+import {useState, useEffect, useCallback, useRef} from 'react';
+import {Link} from 'react-router';
+import {ChevronLeftIcon, ChevronRightIcon} from '@heroicons/react/24/outline';
+
+export interface HeroSlide {
+  src: string;
+  alt: string;
+  url?: string;
+}
+
+/**
+ * Оригиналните банери на maxxmart са с различни пропорции
+ * (1912×632 = 3.03:1 и 1920×708 = 2.71:1) — заради това на живия сайт
+ * височината подскача при смяна на слайда.
+ *
+ * Тук всички минават през ЕДНА рамка 3:1. Избрана е нарочно близо до
+ * по-широкия банер: така по хоризонтала не се реже нищо и текстът в
+ * банерите остава цял. По-тесният губи само по малко горе и долу.
+ *
+ * Същата рамка важи и на телефон. Изкушението е там да се сложи по-висока
+ * рамка (4:3), но тя реже ~60% от ширината и текстът изчезва. Правилното
+ * решение е клиентът да даде отделни вертикални банери за мобилни —
+ * дотогава 3:1 е честният компромис.
+ */
+const AUTOPLAY_MS = 6000;
+
+export function HeroSlider({slides}: {slides: HeroSlide[]}) {
+  const [index, setIndex] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const count = slides.length;
+  const timer = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const go = useCallback(
+    (next: number) => setIndex(((next % count) + count) % count),
+    [count],
+  );
+
+  useEffect(() => {
+    if (paused || count < 2) return;
+    const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    if (reduce) return;
+    timer.current = setInterval(() => setIndex((i) => (i + 1) % count), AUTOPLAY_MS);
+    return () => {
+      if (timer.current) clearInterval(timer.current);
+    };
+  }, [paused, count]);
+
+  if (!count) return null;
+
+  return (
+    <section
+      className="relative overflow-hidden rounded-xl bg-ink-2 ring-1 ring-hairline"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+      aria-roledescription="carousel"
+      aria-label="Промоции"
+    >
+      {/* рамката, която изравнява всички банери */}
+      <div className="relative aspect-[3/1] w-full">
+        {slides.map((slide, i) => {
+          const inner = (
+            <img
+              src={slide.src}
+              alt={slide.alt}
+              loading={i === 0 ? 'eager' : 'lazy'}
+              fetchPriority={i === 0 ? 'high' : 'auto'}
+              className="size-full rounded-none object-cover object-center"
+            />
+          );
+          return (
+            <div
+              key={slide.src}
+              className={`absolute inset-0 transition-opacity duration-700 ease-out ${
+                i === index ? 'opacity-100' : 'pointer-events-none opacity-0'
+              }`}
+              aria-hidden={i !== index}
+            >
+              {slide.url ? (
+                <Link to={slide.url} className="block size-full hover:no-underline">
+                  {inner}
+                </Link>
+              ) : (
+                inner
+              )}
+            </div>
+          );
+        })}
+
+        {/* лек тъмен ръб долу, за да седят точките върху всяка снимка */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/45 to-transparent" />
+      </div>
+
+      {count > 1 ? (
+        <>
+          <SliderButton side="left" onClick={() => go(index - 1)} />
+          <SliderButton side="right" onClick={() => go(index + 1)} />
+
+          {/* индикатори */}
+          <div className="absolute inset-x-0 bottom-4 flex items-center justify-center gap-2">
+            {slides.map((slide, i) => (
+              <button
+                key={slide.src}
+                type="button"
+                onClick={() => go(i)}
+                aria-label={`Слайд ${i + 1} от ${count}`}
+                aria-current={i === index}
+                className={`h-1.5 rounded-full transition-all duration-300 ${
+                  i === index
+                    ? 'w-8 bg-brand shadow-[0_0_12px_rgba(60,180,74,0.9)]'
+                    : 'w-2.5 bg-white/45 hover:bg-white/70'
+                }`}
+              />
+            ))}
+          </div>
+        </>
+      ) : null}
+    </section>
+  );
+}
+
+function SliderButton({side, onClick}: {side: 'left' | 'right'; onClick: () => void}) {
+  const Icon = side === 'left' ? ChevronLeftIcon : ChevronRightIcon;
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={side === 'left' ? 'Предишен банер' : 'Следващ банер'}
+      className={`absolute top-1/2 hidden size-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/15 bg-black/35 text-white backdrop-blur-sm transition-all hover:border-brand hover:bg-brand hover:text-white sm:flex ${
+        side === 'left' ? 'left-4' : 'right-4'
+      }`}
+    >
+      <Icon className="size-5" strokeWidth={2.2} />
+    </button>
+  );
+}
