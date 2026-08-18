@@ -1,6 +1,7 @@
 import {Link} from 'react-router';
 import type {Product} from '@cloudcart/nitrogen';
-import {Image, Money} from '@cloudcart/nitrogen-react';
+import {Image} from '@cloudcart/nitrogen-react';
+import {PriceDual, formatEur, formatBgn} from './PriceDual';
 import {StarRating} from './StarRating';
 import {WishlistButton} from './WishlistButton';
 import {AddToCartButton} from './AddToCartButton';
@@ -89,12 +90,7 @@ export function ProductCard({
   // Цена за килограм при чувалните материали — виж lib/unit-price.ts
   const unit = getUnitPrice(p);
 
-  const money = (n: number) =>
-    new Intl.NumberFormat('bg-BG', {
-      style: 'currency',
-      currency: product.priceRange?.minVariantPrice?.currencyCode ?? 'EUR',
-      minimumFractionDigits: 2,
-    }).format(n);
+  const currencyCode = product.priceRange?.minVariantPrice?.currencyCode;
 
   return (
     <article className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-gray-200 bg-white transition-all duration-200 hover:-translate-y-1 hover:border-brand/45 hover:shadow-[0_14px_32px_-16px_rgba(60,180,74,0.55)]">
@@ -189,18 +185,26 @@ export function ProductCard({
         ) : null}
 
         <div className="mt-auto pt-3">
+          {/* Двойна валута и тук, не само на продуктовата страница —
+              в преходния период към еврото важи за всяка показана цена. */}
           {showDiscount ? (
-            <span className="mb-0.5 block text-[0.8rem] font-medium text-gray-400 line-through">
-              {money(oldPrice)}
+            <span className="mb-0.5 block text-[0.78rem] font-medium text-gray-400 line-through">
+              {formatEur(oldPrice, currencyCode)}{' '}
+              <span className="text-[0.72rem]">{formatBgn(oldPrice, currencyCode)}</span>
             </span>
           ) : null}
-          <span
-            className={`block text-[1.05rem] font-bold tracking-tight ${
-              showDiscount ? 'text-red-600' : 'text-dark'
-            }`}
-          >
-            <Money data={product.priceRange.minVariantPrice} />
-          </span>
+          {showDiscount ? (
+            <span className="flex flex-wrap items-baseline gap-x-2">
+              <span className="text-[1.05rem] font-bold tracking-tight text-red-600">
+                {formatEur(price, currencyCode)}
+              </span>
+              <span className="text-[0.76rem] text-gray-500">
+                {formatBgn(price, currencyCode)}
+              </span>
+            </span>
+          ) : (
+            <PriceDual data={product.priceRange.minVariantPrice} size="sm" />
+          )}
 
           {unit ? (
             <span className="mt-0.5 block text-[0.74rem] text-gray-500">

@@ -1,10 +1,12 @@
-import {useLoaderData, data, Link} from 'react-router';
+import {Suspense} from 'react';
+import {useLoaderData, data, Link, Await} from 'react-router';
 import type {Route} from './+types/products.$handle';
 import {getContext} from '~/lib/context';
 import {getSeoMeta, generateProductJsonLd} from '@cloudcart/nitrogen';
 import {Image, RichText, useOptimisticVariant} from '@cloudcart/nitrogen-react';
 import {PriceDual} from '~/components/PriceDual';
 import {ProductTabs} from '~/components/ProductTabs';
+import {ProductCarousel} from '~/components/ProductCarousel';
 import {findCategoryPath} from '~/lib/navigation';
 import {ArrowDownTrayIcon} from '@heroicons/react/24/outline';
 import {ProductForm} from '~/components/ProductForm';
@@ -37,7 +39,27 @@ export async function loader({params, context, request}: Route.LoaderArgs) {
   const product = await ctx.storefront.getProduct(params.handle);
   if (!product) throw data('Product not found', {status: 404});
 
+  // „Сходни продукти“ = останалите от същата категория.
+  // Свързаните продукти (linkedProducts) се задават на ръка в админа и
+  // затова често липсват; сходните се получават сами и работят за всеки
+  // продукт, който изобщо има категория.
+  const primary = (product as any).collections?.nodes?.[0];
+  const similar = primary
+    ? ctx.storefront
+        .getCollectionProductsPaginated(primary.handle, {first: 14})
+        .then((res: any) =>
+          (res?.products?.nodes ?? [])
+            .filter((p: any) => p.handle !== product.handle)
+            .slice(0, 12),
+        )
+        .catch((error: Error) => {
+          console.error('Сходни продукти не се заредиха', error);
+          return [];
+        })
+    : Promise.resolve([]);
+
   return {
+    similar,
     product,
     linkedProducts: (product as any).linkedProducts?.nodes ?? [],
     collections: (product as any).collections?.nodes ?? [],
@@ -45,7 +67,7 @@ export async function loader({params, context, request}: Route.LoaderArgs) {
 }
 
 export default function ProductPage() {
-  const {product, linkedProducts, collections} = useLoaderData<typeof loader>();
+  const {product, linkedProducts, collections, similar} = useLoaderData<typeof loader>();
   const firstVariant = product.variants.nodes[0];
   const {selectedVariant} = useOptimisticVariant(product, firstVariant);
   const variant = selectedVariant ?? firstVariant;
@@ -85,6 +107,24 @@ export default function ProductPage() {
       {linkedProducts.length > 0 && (
         <LinkedProducts products={linkedProducts} />
       )}
+
+      {/* Сходни продукти — от същата категория. Карусел, а не решетка,
+          защото са до 12 и не бива да избутват страницата надолу. */}
+      <Suspense fallback={<div className="mt-16 h-72 animate-pulse rounded-xl bg-gray-100" />}>
+        <Await resolve={similar}>
+          {(items) =>
+            (items as any[]).length ? (
+              <section className="mt-16 border-t border-gray-200 pt-8">
+                <ProductCarousel
+                  title="Сходни продукти"
+                  subtitle={collections?.[0]?.title}
+                  products={items as any}
+                />
+              </section>
+            ) : null
+          }
+        </Await>
+      </Suspense>
     </div>
   );
 }
