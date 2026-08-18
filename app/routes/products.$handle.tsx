@@ -2,7 +2,8 @@ import {useLoaderData, data, Link} from 'react-router';
 import type {Route} from './+types/products.$handle';
 import {getContext} from '~/lib/context';
 import {getSeoMeta, generateProductJsonLd} from '@cloudcart/nitrogen';
-import {Image, RichText, useOptimisticVariant, Money} from '@cloudcart/nitrogen-react';
+import {Image, RichText, useOptimisticVariant} from '@cloudcart/nitrogen-react';
+import {PriceDual} from '~/components/PriceDual';
 import {ArrowDownTrayIcon} from '@heroicons/react/24/outline';
 import {ProductForm} from '~/components/ProductForm';
 import {ProductImageGallery} from '~/components/ProductImageGallery';
@@ -86,12 +87,12 @@ function ProductMedia({product, variant}: {product: any; variant: any}) {
           <WishlistButton productId={product.id} size="lg" />
         </div>
         <div className="absolute top-3 left-3 z-[2] flex flex-wrap gap-1.5">
-          {product.isNew && <span className="py-1 px-2.5 rounded text-[0.65rem] font-bold uppercase tracking-wider leading-none bg-brand text-white">New</span>}
-          {product.isFeatured && <span className="py-1 px-2.5 rounded text-[0.65rem] font-bold uppercase tracking-wider leading-none bg-amber-500 text-white">Featured</span>}
-          {isOnSale && <span className="py-1 px-2.5 rounded text-[0.65rem] font-bold uppercase tracking-wider leading-none bg-red-600 text-white">Sale</span>}
-          {product.availableForSale === false && <span className="py-1 px-2.5 rounded text-[0.65rem] font-bold uppercase tracking-wider leading-none bg-gray-600 text-white">Sold Out</span>}
+          {product.isNew && <span className="py-1 px-2.5 rounded text-[0.65rem] font-bold uppercase tracking-wider leading-none bg-brand text-white">Ново</span>}
+          {product.isFeatured && <span className="py-1 px-2.5 rounded text-[0.65rem] font-bold uppercase tracking-wider leading-none bg-amber-500 text-white">Препоръчан</span>}
+          {isOnSale && <span className="py-1 px-2.5 rounded text-[0.65rem] font-bold uppercase tracking-wider leading-none bg-red-600 text-white">Промо</span>}
+          {product.availableForSale === false && <span className="py-1 px-2.5 rounded text-[0.65rem] font-bold uppercase tracking-wider leading-none bg-gray-600 text-white">{product.statusName || 'Няма наличност'}</span>}
           {labels
-            .filter((l) => !['New', 'Featured'].includes(l.name))
+            .filter((l) => !['New', 'Featured', 'FEATURED'].includes(l.name))
             .map((label) => (
               <span
                 key={label.name}
@@ -120,14 +121,43 @@ function ProductDetails({product, variant}: {product: any; variant: any}) {
 
   return (
     <div className="self-start">
-      {/* Vendor */}
-      {product.vendor && (
-        <Link to={`/products?vendor=${product.vendor}`} className="inline-block text-xs font-semibold uppercase tracking-widest text-gray-400 mb-2 hover:text-brand hover:no-underline">
-          {product.vendor}
-        </Link>
-      )}
-
       <h1 className="text-[1.75rem] md:text-[2rem] font-bold tracking-tight leading-tight">{product.title}</h1>
+
+      {/* Мета редът на CloudCart: Категория · Производител · SKU */}
+      <dl className="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-[0.8rem]">
+        {product.collections?.nodes?.[0] ? (
+          <div className="flex gap-1.5">
+            <dt className="text-gray-500">Категория:</dt>
+            <dd>
+              <Link
+                to={`/collections/${product.collections.nodes[0].handle}`}
+                className="font-medium text-dark hover:text-brand hover:no-underline"
+              >
+                {product.collections.nodes[0].title}
+              </Link>
+            </dd>
+          </div>
+        ) : null}
+        {product.vendor ? (
+          <div className="flex gap-1.5">
+            <dt className="text-gray-500">Производител:</dt>
+            <dd>
+              <Link
+                to={`/products?vendor=${encodeURIComponent(product.vendor)}`}
+                className="font-medium text-dark hover:text-brand hover:no-underline"
+              >
+                {product.vendor}
+              </Link>
+            </dd>
+          </div>
+        ) : null}
+        {variant?.sku ? (
+          <div className="flex gap-1.5">
+            <dt className="text-gray-500">SKU:</dt>
+            <dd className="font-medium text-dark">{variant.sku}</dd>
+          </div>
+        ) : null}
+      </dl>
 
       {/* Rating */}
       {product.reviewSummary && product.reviewSummary.totalCount > 0 && (
@@ -139,18 +169,13 @@ function ProductDetails({product, variant}: {product: any; variant: any}) {
       {/* Product Form: Price + Variants + Add to Cart */}
       <ProductForm product={product} selectedVariant={variant} />
 
-      {/* SKU */}
-      {variant?.sku && (
-        <div className="mt-4 text-xs text-gray-400 tracking-wide">SKU: {variant.sku}</div>
-      )}
-
       {/* Description */}
       <RichText data={product.descriptionHtml} className="prose prose-sm prose-gray mt-8 pt-6 border-t border-gray-100 max-w-none" />
 
       {/* Specifications */}
       {properties.length > 0 && (
         <div className="mt-6 pt-6 border-t border-gray-100">
-          <h3 className="text-[0.85rem] font-bold uppercase tracking-wider mb-3 text-dark">Specifications</h3>
+          <h3 className="text-[0.85rem] font-bold uppercase tracking-wider mb-3 text-dark">Параметри</h3>
           <table className="w-full border-collapse">
             <tbody>
               {properties.map((prop) => (
@@ -167,7 +192,7 @@ function ProductDetails({product, variant}: {product: any; variant: any}) {
       {/* Downloads */}
       {files.length > 0 && (
         <div className="mt-6 pt-6 border-t border-gray-100">
-          <h3 className="text-[0.85rem] font-bold uppercase tracking-wider mb-3 text-dark">Downloads</h3>
+          <h3 className="text-[0.85rem] font-bold uppercase tracking-wider mb-3 text-dark">Документи за изтегляне</h3>
           <ul className="list-none flex flex-col gap-2">
             {files.map((file) => (
               <li key={file.id}>
@@ -199,7 +224,7 @@ function ProductDetails({product, variant}: {product: any; variant: any}) {
       {variant?.weight && (
         <div className="mt-6 pt-6 border-t border-gray-100">
           <span className="text-xs text-gray-500">
-            Weight: {variant.weight} {(variant.weightUnit ?? 'kg').toLowerCase()}
+            Тегло: {variant.weight >= 1000 ? (variant.weight / 1000) : variant.weight} кг
           </span>
         </div>
       )}
@@ -212,14 +237,14 @@ function ProductDetails({product, variant}: {product: any; variant: any}) {
 function LinkedProducts({products}: {products: any[]}) {
   return (
     <section className="mt-16 pt-8 border-t border-gray-200">
-      <h2 className="text-2xl font-bold tracking-tight mb-5">You may also like</h2>
+      <h2 className="text-2xl font-bold tracking-tight mb-5">Свързани продукти</h2>
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
         {products.map((p: any) => (
           <Link key={p.id} to={`/products/${p.handle}`} className="block text-inherit transition-transform duration-150 hover:no-underline hover:-translate-y-0.5" prefetch="intent">
             <div className="relative overflow-hidden rounded-[10px]">
               {p.featuredImage?.url ? <Image data={p.featuredImage} alt={p.title} className="aspect-square object-cover w-full rounded-[10px] bg-gray-100" /> : <img src="/noimage.svg" alt={p.title} className="aspect-square object-cover w-full rounded-[10px] bg-gray-100" />}
               {p.availableForSale === false && (
-                <span className="absolute top-2 right-2 py-1 px-2.5 rounded text-[0.65rem] font-bold uppercase tracking-wider leading-none bg-gray-600 text-white">Sold Out</span>
+                <span className="absolute top-2 right-2 py-1 px-2.5 rounded text-[0.65rem] font-bold uppercase tracking-wider leading-none bg-gray-600 text-white">{p.statusName || 'Няма наличност'}</span>
               )}
               {p.labels?.length > 0 && (
                 <div className="absolute top-2 left-2 flex flex-wrap gap-1">
@@ -236,7 +261,7 @@ function LinkedProducts({products}: {products: any[]}) {
               )}
             </div>
             <h4 className="text-sm font-semibold mt-3 leading-tight">{p.title}</h4>
-            <span className="text-[0.85rem] text-gray-500 mt-1 block"><Money data={p.priceRange.minVariantPrice} /></span>
+            <span className="mt-1 block"><PriceDual data={p.priceRange.minVariantPrice} size="sm" /></span>
           </Link>
         ))}
       </div>

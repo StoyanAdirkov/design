@@ -10,7 +10,7 @@ export function Breadcrumbs({items}: {items: BreadcrumbItem[]}) {
     <nav className="text-xs text-gray-400 mb-6" aria-label="Breadcrumb">
       <ol className="flex flex-wrap items-center list-none" itemScope itemType="https://schema.org/BreadcrumbList">
         <li itemProp="itemListElement" itemScope itemType="https://schema.org/ListItem">
-          <Link to="/" itemProp="item" className="text-gray-400 transition-colors duration-150 hover:text-dark hover:no-underline"><span itemProp="name">Home</span></Link>
+          <Link to="/" itemProp="item" className="text-gray-400 transition-colors duration-150 hover:text-dark hover:no-underline"><span itemProp="name">Начало</span></Link>
           <meta itemProp="position" content="1" />
         </li>
         {items.map((item, i) => (

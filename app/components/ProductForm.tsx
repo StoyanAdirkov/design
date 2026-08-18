@@ -1,5 +1,6 @@
 import {Link, useNavigate} from 'react-router';
-import {VariantSelector, ProductPrice, Money} from '@cloudcart/nitrogen-react';
+import {VariantSelector} from '@cloudcart/nitrogen-react';
+import {PriceDual, PriceDualOld, formatEur} from './PriceDual';
 import {getUnitPrice, formatUnitPrice} from '~/lib/unit-price';
 import {AddToCartButton} from './AddToCartButton';
 import {OptionSwatch} from './OptionSwatch';
@@ -21,33 +22,52 @@ export function ProductForm({product, selectedVariant}: ProductFormProps) {
 
   return (
     <div>
-      {/* Price */}
-      <div className="flex items-baseline gap-2 text-xl font-semibold my-3 [&_s]:text-gray-400 [&_s]:font-normal [&_s]:text-base" aria-live="polite">
-        {variant ? (
-          <>
-            <ProductPrice price={variant.price} compareAtPrice={variant.compareAtPrice} />
-            {isOnSale && variant.compareAtPrice && (
-              <span className="text-xs font-semibold text-red-600 bg-red-50 py-0.5 px-2 rounded">
-                Save {Math.round((1 - parseFloat(variant.price.amount) / parseFloat(variant.compareAtPrice.amount)) * 100)}%
-              </span>
-            )}
-          </>
-        ) : hasMultiplePrices ? (
-          <span>From <Money data={product.priceRange.minVariantPrice} /></span>
-        ) : (
-          <Money data={product.priceRange.minVariantPrice} />
-        )}
-      </div>
+      {/* Цена — по структурата на CloudCart: нова цена, под нея стара и
+          спестено, после мерна единица, после наличност. */}
+      <div className="my-4" aria-live="polite">
+        <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+          {variant ? (
+            <PriceDual data={variant.price} size="lg" />
+          ) : hasMultiplePrices ? (
+            <span className="flex items-baseline gap-2">
+              <span className="text-[0.9rem] text-gray-500">от</span>
+              <PriceDual data={product.priceRange.minVariantPrice} size="lg" />
+            </span>
+          ) : (
+            <PriceDual data={product.priceRange.minVariantPrice} size="lg" />
+          )}
 
-      {unit ? (
-        <p className="-mt-1 mb-3 text-[0.82rem] text-gray-500">
-          <span className="font-semibold text-gray-700">
-            {formatUnitPrice(unit, product.priceRange?.minVariantPrice?.currencyCode)}
-          </span>
-          {' · разфасовка '}
-          {unit.kg % 1 === 0 ? unit.kg : unit.kg.toFixed(1)} кг
-        </p>
-      ) : null}
+          {isOnSale && variant?.compareAtPrice ? (
+            <span className="rounded bg-red-50 px-2 py-0.5 text-[0.75rem] font-bold text-red-600">
+              −{Math.round((1 - parseFloat(variant.price.amount) / parseFloat(variant.compareAtPrice.amount)) * 100)}%
+            </span>
+          ) : null}
+        </div>
+
+        {isOnSale && variant?.compareAtPrice ? (
+          <div className="mt-1.5 flex flex-wrap items-baseline gap-x-3">
+            <span className="text-[0.78rem] text-gray-500">Стара цена:</span>
+            <PriceDualOld data={variant.compareAtPrice} />
+            <span className="text-[0.78rem] font-semibold text-brand-dark">
+              Спестяваш{' '}
+              {formatEur(
+                parseFloat(variant.compareAtPrice.amount) - parseFloat(variant.price.amount),
+                variant.price.currencyCode,
+              )}
+            </span>
+          </div>
+        ) : null}
+
+        {unit ? (
+          <p className="mt-1.5 text-[0.82rem] text-gray-500">
+            <span className="font-semibold text-gray-700">
+              {formatUnitPrice(unit, product.priceRange?.minVariantPrice?.currencyCode)}
+            </span>
+            {' · разфасовка '}
+            {unit.kg % 1 === 0 ? unit.kg : unit.kg.toFixed(1)} кг
+          </p>
+        ) : null}
+      </div>
 
       {/* Stock */}
       {variant && <StockIndicator variant={variant} />}
@@ -98,9 +118,13 @@ export function ProductForm({product, selectedVariant}: ProductFormProps) {
           disabled={!variant.availableForSale}
           className="flex items-center justify-center w-full py-4 px-8 mt-2 bg-dark text-light border-none rounded-[10px] text-base font-semibold tracking-wide transition-[background,transform] duration-150 hover:bg-gray-900 active:scale-[0.98] disabled:bg-gray-200 disabled:text-gray-500 disabled:cursor-not-allowed"
         >
-          {variant.availableForSale ? 'Add to Cart' : 'Sold Out'}
+          {variant.availableForSale ? 'Купи' : (variant.statusName || 'Няма наличност')}
         </AddToCartButton>
       )}
+
+      <p className="mt-3 text-[0.75rem] text-gray-500">
+        Всички посочени цени са с включено ДДС.
+      </p>
     </div>
   );
 }
@@ -109,7 +133,7 @@ function StockIndicator({variant}: {variant: any}) {
   if (!variant.availableForSale) {
     return (
       <div className="mb-5 text-xs font-medium">
-        <span className="text-red-600">Out of stock</span>
+        <span className="text-red-600">{variant.statusName || 'Няма наличност'}</span>
       </div>
     );
   }
@@ -117,7 +141,7 @@ function StockIndicator({variant}: {variant: any}) {
   if (variant.currentlyNotInStock) {
     return (
       <div className="mb-5 text-xs font-medium">
-        <span className="text-brand">Available for pre-order</span>
+        <span className="text-brand">Предварителна поръчка</span>
       </div>
     );
   }
@@ -125,14 +149,14 @@ function StockIndicator({variant}: {variant: any}) {
   if (variant.quantityAvailable != null && variant.quantityAvailable > 0 && variant.quantityAvailable <= 5) {
     return (
       <div className="mb-5 text-xs font-medium">
-        <span className="text-orange-600">Only {variant.quantityAvailable} left!</span>
+        <span className="text-orange-600">Остават само {variant.quantityAvailable} бр.</span>
       </div>
     );
   }
 
   return (
     <div className="mb-5 text-xs font-medium">
-      <span className="text-green-600 before:content-[''] before:inline-block before:size-1.5 before:rounded-full before:bg-current before:mr-1.5 before:align-middle">In stock</span>
+      <span className="text-green-600 before:content-[''] before:inline-block before:size-1.5 before:rounded-full before:bg-current before:mr-1.5 before:align-middle">В наличност</span>
     </div>
   );
 }
@@ -155,7 +179,7 @@ function OptionSelect({name, values}: {name: string; values: any[]}) {
     >
       {values.map((o) => (
         <option key={o.value} value={o.value} disabled={!o.available}>
-          {o.value}{!o.available ? ' (Sold out)' : ''}
+          {o.value}{!o.available ? ' (изчерпан)' : ''}
         </option>
       ))}
     </select>
