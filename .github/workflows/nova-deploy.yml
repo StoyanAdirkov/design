@@ -44,6 +44,14 @@ jobs:
         env:
           NOVA_DEPLOY_URL: ${{ vars.NOVA_DEPLOY_URL }}
           NOVA_DEPLOY_TOKEN: ${{ secrets.NOVA_DEPLOY_TOKEN }}
+          # ВАЖНО: тези три идват от коммита и се подават през env, а не
+          # чрез ${{ }} направо в шела. Интерполацията вмъква суровия текст
+          # в скрипта, така че commit съобщение с обратни апострофи или
+          # $(...) се изпълнява като команда в CI — където стои деплой
+          # токенът. През env стойността си остава данни.
+          COMMIT_SHA: ${{ github.sha }}
+          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+          BRANCH_NAME: ${{ github.ref_name }}
         run: |
           set -euo pipefail
 
@@ -116,9 +124,9 @@ jobs:
             -H "User-Agent: CloudCart-Nova-Deploy/1.0" \
             -F "worker=@build/server/index.js;type=application/javascript+module" \
             -F "environment=production" \
-            -F "commit_sha=${{ github.sha }}" \
-            -F "commit_message=${{ github.event.head_commit.message }}" \
-            -F "branch=${{ github.ref_name }}" \
+            -F "commit_sha=$COMMIT_SHA" \
+            -F "commit_message=$COMMIT_MESSAGE" \
+            -F "branch=$BRANCH_NAME" \
             -F "assets_jwt=<assets_jwt.txt")
           cat resp.json; echo
           if [ "$HTTP" -ge 400 ]; then
@@ -129,9 +137,14 @@ jobs:
 
       - name: Report failure
         if: failure() && steps.check.outputs.skip != 'true'
+        env:
+          NOVA_DEPLOY_URL: ${{ vars.NOVA_DEPLOY_URL }}
+          NOVA_DEPLOY_TOKEN: ${{ secrets.NOVA_DEPLOY_TOKEN }}
+          COMMIT_SHA: ${{ github.sha }}
+          BRANCH_NAME: ${{ github.ref_name }}
         run: |
-          curl -s -X POST "${{ vars.NOVA_DEPLOY_URL }}/deploy/report" \
-            -H "X-Nova-Deploy-Token: ${{ secrets.NOVA_DEPLOY_TOKEN }}" \
+          curl -s -X POST "$NOVA_DEPLOY_URL/deploy/report" \
+            -H "X-Nova-Deploy-Token: $NOVA_DEPLOY_TOKEN" \
             -H "User-Agent: CloudCart-Nova-Deploy/1.0" \
             -H "Content-Type: application/json" \
-            -d "{\"status\":\"failed\",\"commit_sha\":\"${{ github.sha }}\",\"branch\":\"${{ github.ref_name }}\",\"environment\":\"production\"}" || true
+            --data-raw "{\"status\":\"failed\",\"commit_sha\":\"$COMMIT_SHA\",\"branch\":\"$BRANCH_NAME\",\"environment\":\"production\"}" || true
