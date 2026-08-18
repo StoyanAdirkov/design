@@ -4,6 +4,7 @@ import {Image, Money} from '@cloudcart/nitrogen-react';
 import {StarRating} from './StarRating';
 import {WishlistButton} from './WishlistButton';
 import {AddToCartButton} from './AddToCartButton';
+import {getUnitPrice, formatUnitPrice} from '~/lib/unit-price';
 
 /**
  * Продуктова карта.
@@ -84,6 +85,9 @@ export function ProductCard({
   const percent = realDiscount || (salePercent ?? 0);
   const oldPrice = realDiscount ? compareAt : percent ? price / (1 - percent / 100) : 0;
   const showDiscount = percent > 0 && oldPrice > price;
+
+  // Цена за килограм при чувалните материали — виж lib/unit-price.ts
+  const unit = getUnitPrice(p);
 
   const money = (n: number) =>
     new Intl.NumberFormat('bg-BG', {
@@ -197,6 +201,14 @@ export function ProductCard({
           >
             <Money data={product.priceRange.minVariantPrice} />
           </span>
+
+          {unit ? (
+            <span className="mt-0.5 block text-[0.74rem] text-gray-500">
+              {formatUnitPrice(unit, product.priceRange?.minVariantPrice?.currencyCode)}
+              {' · '}
+              {unit.kg % 1 === 0 ? unit.kg : unit.kg.toFixed(1)} кг
+            </span>
+          ) : null}
 
           <div className="relative z-10 mt-2.5">
             {canQuickBuy ? (

@@ -1,5 +1,6 @@
 import {Link, useNavigate} from 'react-router';
 import {VariantSelector, ProductPrice, Money} from '@cloudcart/nitrogen-react';
+import {getUnitPrice, formatUnitPrice} from '~/lib/unit-price';
 import {AddToCartButton} from './AddToCartButton';
 import {OptionSwatch} from './OptionSwatch';
 
@@ -14,6 +15,9 @@ export function ProductForm({product, selectedVariant}: ProductFormProps) {
     product.priceRange.minVariantPrice.amount !== product.priceRange.maxVariantPrice.amount;
   const isOnSale = variant?.compareAtPrice &&
     parseFloat(variant.compareAtPrice.amount) > parseFloat(variant.price.amount);
+
+  // Цена за килограм при чувалните материали — виж lib/unit-price.ts
+  const unit = getUnitPrice(product);
 
   return (
     <div>
@@ -34,6 +38,16 @@ export function ProductForm({product, selectedVariant}: ProductFormProps) {
           <Money data={product.priceRange.minVariantPrice} />
         )}
       </div>
+
+      {unit ? (
+        <p className="-mt-1 mb-3 text-[0.82rem] text-gray-500">
+          <span className="font-semibold text-gray-700">
+            {formatUnitPrice(unit, product.priceRange?.minVariantPrice?.currencyCode)}
+          </span>
+          {' · разфасовка '}
+          {unit.kg % 1 === 0 ? unit.kg : unit.kg.toFixed(1)} кг
+        </p>
+      ) : null}
 
       {/* Stock */}
       {variant && <StockIndicator variant={variant} />}
