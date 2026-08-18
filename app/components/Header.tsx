@@ -116,11 +116,16 @@ export function Header({shop, cart}: HeaderProps) {
             />
           </Link>
 
-          {/* търсачка */}
+          {/* Търсачка.
+              Първоначално беше flex-1 и се разтягаше на 1492px — твърде
+              дълга. Таванът 1080px я скъсява с около 28%, а mx-auto
+              разпределя остатъка поравно отляво и отдясно (по 131px при
+              1920px), вместо цялата празнина да зее на едно място до
+              телефона. */}
           <Form
             method="get"
             action="/search"
-            className="group relative hidden w-full max-w-[640px] items-center md:flex"
+            className="group relative mx-auto hidden w-full max-w-[1080px] items-center md:flex"
             role="search"
           >
             <div className="absolute inset-0 -z-10 rounded-lg bg-brand/0 blur-md transition-all duration-300 group-focus-within:bg-brand/20" />
@@ -143,7 +148,7 @@ export function Header({shop, cart}: HeaderProps) {
           {/* телефон — води и на сегашния им сайт, аудиторията звъни */}
           <a
             href="tel:+35928180826"
-            className="ml-auto hidden items-center gap-2.5 rounded-lg px-2 py-1.5 transition-colors hover:bg-white/5 hover:no-underline lg:flex"
+            className="hidden shrink-0 items-center gap-2.5 rounded-lg px-2 py-1.5 transition-colors hover:bg-white/5 hover:no-underline lg:flex"
           >
             <span className="flex size-9 items-center justify-center rounded-lg bg-brand/10 text-brand-bright ring-1 ring-brand/25">
               <PhoneIcon className="size-4" />
@@ -157,7 +162,7 @@ export function Header({shop, cart}: HeaderProps) {
           </a>
 
           {/* икони */}
-          <div className="ml-auto flex items-center gap-1 lg:ml-2 lg:gap-2">
+          <div className="ml-auto flex shrink-0 items-center gap-1 lg:ml-3 lg:gap-2">
             <NavLink
               to="/search"
               className="flex size-10 items-center justify-center rounded-lg text-gray-300 transition-colors hover:bg-white/5 hover:text-brand-bright hover:no-underline md:hidden"
