@@ -7,6 +7,7 @@ import {AddToCartButton} from './AddToCartButton';
 import {OptionSwatch} from './OptionSwatch';
 import {QuantityPicker} from './QuantityPicker';
 import {DeliveryPromise} from './DeliveryPromise';
+import {StorePickup} from './StorePickup';
 import {ProductCalculator} from './ProductCalculator';
 import {parseConsumption} from '~/lib/consumption';
 
@@ -78,6 +79,9 @@ export function ProductForm({product, selectedVariant}: ProductFormProps) {
           нищо на купувача. Статусът се вижда в реда за наличност отдолу. */}
 
       {variant && <StockIndicator variant={variant} />}
+
+      {/* Обектите за взимане — веднага под наличността */}
+      <StorePickup />
 
       {/* Variant Selector */}
       <VariantSelector product={product}>
