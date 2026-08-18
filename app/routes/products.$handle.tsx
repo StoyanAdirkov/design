@@ -62,6 +62,17 @@ export default function ProductPage() {
         <ProductDetails product={product} variant={variant} />
       </div>
 
+      {/* Табовете са под галерията и заемат цялата ширина, както при
+          CloudCart — там „ОПИСАНИЕ“ започва под снимката, а не в
+          дясната колона до цената. */}
+      <ProductTabs
+        descriptionHtml={product.descriptionHtml}
+        properties={(product as any).properties ?? []}
+        files={(product as any).files?.nodes ?? []}
+        product={product}
+        variant={variant}
+      />
+
       {/* Reviews */}
       {(product as any).reviewSummary && (
         <ReviewList
@@ -187,15 +198,6 @@ function ProductDetails({product, variant}: {product: any; variant: any}) {
 
       {/* Product Form: Price + Variants + Add to Cart */}
       <ProductForm product={product} selectedVariant={variant} />
-
-      {/* Описание, параметри и документи — в табове, както при CloudCart */}
-      <ProductTabs
-        descriptionHtml={product.descriptionHtml}
-        properties={properties}
-        files={files}
-        product={product}
-        variant={variant}
-      />
 
       {/* Tags */}
       {product.tags?.length > 0 && (
