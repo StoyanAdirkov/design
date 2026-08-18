@@ -50,8 +50,11 @@ export default function ProductPage() {
   const {selectedVariant} = useOptimisticVariant(product, firstVariant);
   const variant = selectedVariant ?? firstVariant;
 
+  // Центриран контейнер. <main> е от край до край заради началната
+  // страница, затова тук ограничението трябва изрично да се центрира —
+  // иначе съдържанието се лепи вляво и вдясно зее празно.
   return (
-    <div className="max-w-7xl">
+    <div className="mx-auto max-w-[1280px]">
       <ProductBreadcrumbs product={product} collections={collections} />
 
       <div className="grid gap-8 md:grid-cols-2 md:gap-12 lg:grid-cols-[7fr_5fr] lg:gap-16">
@@ -164,6 +167,17 @@ function ProductDetails({product, variant}: {product: any; variant: any}) {
         </div>
       </dl>
 
+      {/* „Всичко от [марка]“ — Praktiker го има точно така */}
+      {product.vendor ? (
+        <Link
+          to={`/products?vendor=${encodeURIComponent(product.vendor)}`}
+          prefetch="intent"
+          className="mt-3 inline-block text-[0.82rem] font-semibold text-brand-dark hover:no-underline hover:brightness-110"
+        >
+          Всичко от {product.vendor} →
+        </Link>
+      ) : null}
+
       {/* Rating */}
       {product.reviewSummary && product.reviewSummary.totalCount > 0 && (
         <div className="mt-2">
@@ -203,7 +217,7 @@ function ProductDetails({product, variant}: {product: any; variant: any}) {
 function LinkedProducts({products}: {products: any[]}) {
   return (
     <section className="mt-16 pt-8 border-t border-gray-200">
-      <h2 className="text-2xl font-bold tracking-tight mb-5">Свързани продукти</h2>
+      <h2 className="text-2xl font-bold tracking-tight mb-5">Често купувани заедно</h2>
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
         {products.map((p: any) => (
           <Link key={p.id} to={`/products/${p.handle}`} className="block text-inherit transition-transform duration-150 hover:no-underline hover:-translate-y-0.5" prefetch="intent">

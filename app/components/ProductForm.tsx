@@ -1,9 +1,12 @@
+import {useState} from 'react';
 import {Link, useNavigate} from 'react-router';
 import {VariantSelector} from '@cloudcart/nitrogen-react';
 import {PriceDual, PriceDualOld, PriceCloudCart, formatEur} from './PriceDual';
 import {getUnitPrice, formatUnitPrice} from '~/lib/unit-price';
 import {AddToCartButton} from './AddToCartButton';
 import {OptionSwatch} from './OptionSwatch';
+import {QuantityPicker} from './QuantityPicker';
+import {DeliveryPromise} from './DeliveryPromise';
 
 interface ProductFormProps {
   product: any;
@@ -12,6 +15,7 @@ interface ProductFormProps {
 
 export function ProductForm({product, selectedVariant}: ProductFormProps) {
   const variant = selectedVariant;
+  const [quantity, setQuantity] = useState(1);
   const hasMultiplePrices =
     product.priceRange.minVariantPrice.amount !== product.priceRange.maxVariantPrice.amount;
   const isOnSale = variant?.compareAtPrice &&
@@ -119,8 +123,16 @@ export function ProductForm({product, selectedVariant}: ProductFormProps) {
           запитване, макар да е в наличност. */}
       {variant && (
         <div className="mt-5 rounded-lg bg-gray-50 p-4 ring-1 ring-gray-200">
+          <div className="mb-3">
+            <QuantityPicker
+              value={quantity}
+              onChange={setQuantity}
+              max={variant.quantityAvailable}
+            />
+          </div>
           <AddToCartButton
             merchandiseId={variant.id}
+            quantity={quantity}
             disabled={!variant.availableForSale}
             className="flex w-full items-center justify-center rounded-lg bg-brand px-8 py-4 text-base font-bold uppercase tracking-wide text-white transition-all duration-150 hover:bg-brand-dark hover:shadow-[0_10px_24px_-10px_rgba(60,180,74,1)] active:scale-[0.99] disabled:cursor-not-allowed disabled:bg-gray-200 disabled:text-gray-500 disabled:shadow-none"
           >
@@ -128,6 +140,8 @@ export function ProductForm({product, selectedVariant}: ProductFormProps) {
           </AddToCartButton>
         </div>
       )}
+
+      <DeliveryPromise />
 
       {/* Уточненията са дословно от тяхната страница */}
       <p className="mt-4 text-[0.8rem] leading-relaxed text-gray-500">
@@ -167,9 +181,16 @@ function StockIndicator({variant}: {variant: any}) {
     );
   }
 
+  // Bauhaus показва точния брой („В НАЛИЧНОСТ 22 бр.“). Числото е
+  // по-убедително от думата и подтиква към по-голяма поръчка.
   return (
     <div className="mb-5 text-xs font-medium">
-      <span className="text-green-600 before:content-[''] before:inline-block before:size-1.5 before:rounded-full before:bg-current before:mr-1.5 before:align-middle">В наличност</span>
+      <span className="text-green-600 before:mr-1.5 before:inline-block before:size-1.5 before:rounded-full before:bg-current before:align-middle before:content-['']">
+        В наличност
+      </span>
+      {variant.quantityAvailable != null && variant.quantityAvailable > 0 ? (
+        <span className="ml-1.5 text-gray-500">· {variant.quantityAvailable} бр.</span>
+      ) : null}
     </div>
   );
 }
