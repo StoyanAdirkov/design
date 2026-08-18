@@ -4,6 +4,7 @@ import {getContext} from '~/lib/context';
 import {getSeoMeta, generateProductJsonLd} from '@cloudcart/nitrogen';
 import {Image, RichText, useOptimisticVariant} from '@cloudcart/nitrogen-react';
 import {PriceDual} from '~/components/PriceDual';
+import {ProductTabs} from '~/components/ProductTabs';
 import {ArrowDownTrayIcon} from '@heroicons/react/24/outline';
 import {ProductForm} from '~/components/ProductForm';
 import {ProductImageGallery} from '~/components/ProductImageGallery';
@@ -169,45 +170,14 @@ function ProductDetails({product, variant}: {product: any; variant: any}) {
       {/* Product Form: Price + Variants + Add to Cart */}
       <ProductForm product={product} selectedVariant={variant} />
 
-      {/* Description */}
-      <RichText data={product.descriptionHtml} className="prose prose-sm prose-gray mt-8 pt-6 border-t border-gray-100 max-w-none" />
-
-      {/* Specifications */}
-      {properties.length > 0 && (
-        <div className="mt-6 pt-6 border-t border-gray-100">
-          <h3 className="text-[0.85rem] font-bold uppercase tracking-wider mb-3 text-dark">Параметри</h3>
-          <table className="w-full border-collapse">
-            <tbody>
-              {properties.map((prop) => (
-                <tr key={prop.name}>
-                  <td className="py-2.5 text-[0.85rem] border-b border-gray-100 text-gray-500 w-[40%] font-medium">{prop.name}</td>
-                  <td className="py-2.5 text-[0.85rem] border-b border-gray-100 text-dark">{prop.values.join(', ')}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      {/* Downloads */}
-      {files.length > 0 && (
-        <div className="mt-6 pt-6 border-t border-gray-100">
-          <h3 className="text-[0.85rem] font-bold uppercase tracking-wider mb-3 text-dark">Документи за изтегляне</h3>
-          <ul className="list-none flex flex-col gap-2">
-            {files.map((file) => (
-              <li key={file.id}>
-                <a href={file.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 py-2.5 px-3.5 bg-gray-50 border border-gray-200 rounded-lg text-[0.85rem] text-dark transition-all duration-150 hover:bg-gray-100 hover:border-gray-400 hover:no-underline">
-                  <DownloadIcon />
-                  {file.name || file.filename}
-                  {file.fileSize > 0 && (
-                    <span className="text-gray-400 text-xs ml-auto">{formatFileSize(file.fileSize)}</span>
-                  )}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+      {/* Описание, параметри и документи — в табове, както при CloudCart */}
+      <ProductTabs
+        descriptionHtml={product.descriptionHtml}
+        properties={properties}
+        files={files}
+        product={product}
+        variant={variant}
+      />
 
       {/* Tags */}
       {product.tags?.length > 0 && (
@@ -220,14 +190,6 @@ function ProductDetails({product, variant}: {product: any; variant: any}) {
         </div>
       )}
 
-      {/* Shipping Info */}
-      {variant?.weight && (
-        <div className="mt-6 pt-6 border-t border-gray-100">
-          <span className="text-xs text-gray-500">
-            Тегло: {variant.weight >= 1000 ? (variant.weight / 1000) : variant.weight} кг
-          </span>
-        </div>
-      )}
     </div>
   );
 }
