@@ -1,6 +1,6 @@
 import {Link, useNavigate} from 'react-router';
 import {VariantSelector} from '@cloudcart/nitrogen-react';
-import {PriceDual, PriceDualOld, formatEur} from './PriceDual';
+import {PriceDual, PriceDualOld, PriceCloudCart, formatEur} from './PriceDual';
 import {getUnitPrice, formatUnitPrice} from '~/lib/unit-price';
 import {AddToCartButton} from './AddToCartButton';
 import {OptionSwatch} from './OptionSwatch';
@@ -22,30 +22,21 @@ export function ProductForm({product, selectedVariant}: ProductFormProps) {
 
   return (
     <div>
-      {/* Цена — по структурата на CloudCart: нова цена, под нея стара и
-          спестено, после мерна единица, после наличност. */}
-      <div className="my-4" aria-live="polite">
-        <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-          {variant ? (
-            <PriceDual data={variant.price} size="lg" />
-          ) : hasMultiplePrices ? (
-            <span className="flex items-baseline gap-2">
-              <span className="text-[0.9rem] text-gray-500">от</span>
-              <PriceDual data={product.priceRange.minVariantPrice} size="lg" />
-            </span>
-          ) : (
-            <PriceDual data={product.priceRange.minVariantPrice} size="lg" />
-          )}
-
-          {isOnSale && variant?.compareAtPrice ? (
-            <span className="rounded bg-red-50 px-2 py-0.5 text-[0.75rem] font-bold text-red-600">
-              −{Math.round((1 - parseFloat(variant.price.amount) / parseFloat(variant.compareAtPrice.amount)) * 100)}%
-            </span>
-          ) : null}
-        </div>
+      {/* Цената както на живия сайт: „9,83 € / 19,23 лв.“ в зелено */}
+      <div className="mt-4" aria-live="polite">
+        {variant ? (
+          <PriceCloudCart data={variant.price} />
+        ) : hasMultiplePrices ? (
+          <span className="flex flex-wrap items-baseline gap-2">
+            <span className="text-[0.9rem] text-gray-500">от</span>
+            <PriceCloudCart data={product.priceRange.minVariantPrice} />
+          </span>
+        ) : (
+          <PriceCloudCart data={product.priceRange.minVariantPrice} />
+        )}
 
         {isOnSale && variant?.compareAtPrice ? (
-          <div className="mt-1.5 flex flex-wrap items-baseline gap-x-3">
+          <div className="mt-2 flex flex-wrap items-baseline gap-x-3">
             <span className="text-[0.78rem] text-gray-500">Стара цена:</span>
             <PriceDualOld data={variant.compareAtPrice} />
             <span className="text-[0.78rem] font-semibold text-brand-dark">
@@ -58,18 +49,29 @@ export function ProductForm({product, selectedVariant}: ProductFormProps) {
           </div>
         ) : null}
 
+        {/* Мерна единица — това е нашата добавка към техния шаблон.
+            При чувалните материали „9,83 €“ не значи нищо без цена за кг. */}
         {unit ? (
-          <p className="mt-1.5 text-[0.82rem] text-gray-500">
-            <span className="font-semibold text-gray-700">
+          <p className="mt-2 inline-flex items-baseline gap-2 rounded-md bg-brand/8 px-2.5 py-1 text-[0.84rem] ring-1 ring-brand/20">
+            <span className="font-bold text-brand-dark">
               {formatUnitPrice(unit, product.priceRange?.minVariantPrice?.currencyCode)}
             </span>
-            {' · разфасовка '}
-            {unit.kg % 1 === 0 ? unit.kg : unit.kg.toFixed(1)} кг
+            <span className="text-gray-500">
+              разфасовка {unit.kg % 1 === 0 ? unit.kg : unit.kg.toFixed(1)} кг
+            </span>
           </p>
         ) : null}
       </div>
 
-      {/* Stock */}
+      {/* Статусът е етикет под цената, както на живия сайт. Там е
+          лилаво хапче с текст „Продукт“ — тук е в бранд зелено, за да
+          не бие на дизайна. */}
+      {variant?.statusName ? (
+        <span className="mt-3 inline-block rounded bg-brand/12 px-2.5 py-1 text-[0.72rem] font-semibold uppercase tracking-wide text-brand-dark ring-1 ring-brand/20">
+          {variant.statusName}
+        </span>
+      ) : null}
+
       {variant && <StockIndicator variant={variant} />}
 
       {/* Variant Selector */}
@@ -111,18 +113,29 @@ export function ProductForm({product, selectedVariant}: ProductFormProps) {
         }
       </VariantSelector>
 
-      {/* Add to Cart */}
+      {/* Бутонът е в светла кутия на цялата ширина, както при тях.
+          Клиентът поиска изрично „Купи“ вместо тяхното „Направи
+          запитване“ — на живия им сайт точно този продукт показва
+          запитване, макар да е в наличност. */}
       {variant && (
-        <AddToCartButton
-          merchandiseId={variant.id}
-          disabled={!variant.availableForSale}
-          className="flex items-center justify-center w-full py-4 px-8 mt-2 bg-dark text-light border-none rounded-[10px] text-base font-semibold tracking-wide transition-[background,transform] duration-150 hover:bg-gray-900 active:scale-[0.98] disabled:bg-gray-200 disabled:text-gray-500 disabled:cursor-not-allowed"
-        >
-          {variant.availableForSale ? 'Купи' : (variant.statusName || 'Няма наличност')}
-        </AddToCartButton>
+        <div className="mt-5 rounded-lg bg-gray-50 p-4 ring-1 ring-gray-200">
+          <AddToCartButton
+            merchandiseId={variant.id}
+            disabled={!variant.availableForSale}
+            className="flex w-full items-center justify-center rounded-lg bg-brand px-8 py-4 text-base font-bold uppercase tracking-wide text-white transition-all duration-150 hover:bg-brand-dark hover:shadow-[0_10px_24px_-10px_rgba(60,180,74,1)] active:scale-[0.99] disabled:cursor-not-allowed disabled:bg-gray-200 disabled:text-gray-500 disabled:shadow-none"
+          >
+            Купи
+          </AddToCartButton>
+        </div>
       )}
 
-      <p className="mt-3 text-[0.75rem] text-gray-500">
+      {/* Уточненията са дословно от тяхната страница */}
+      <p className="mt-4 text-[0.8rem] leading-relaxed text-gray-500">
+        Възможни са разлики в цените, наличностите и продуктите в магазини и
+        складове maxxmart. София, maxxmart. онлайн магазин и maxxmart. магазини
+        и складове в страната.
+      </p>
+      <p className="mt-2 text-[0.8rem] text-gray-500">
         Всички посочени цени са с включено ДДС.
       </p>
     </div>

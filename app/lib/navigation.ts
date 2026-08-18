@@ -800,3 +800,32 @@ export const UTILITY_NAV: NavNode[] = [
   {title: 'За нас', url: '/pages/za-nas'},
   {title: 'Контакти', url: '/pages/contacts'},
 ];
+
+/**
+ * Пътят от главната категория до дадена, по handle.
+ *
+ * Storefront API-то връща на продукта САМО най-долната му категория, без
+ * родителите ѝ — проверено: Baumit DuoContact дава единствено
+ * „za-toploizolacii“. Затова трохите се сглобяват от дървото по-горе,
+ * което и без това е извлечено от менюто на живия сайт.
+ *
+ * Връща празен масив, ако категорията не е в менюто — тогава трохите
+ * падат обратно на това, което API-то е дало.
+ */
+export function findCategoryPath(handle: string): NavNode[] {
+  const target = `/collections/${handle}`;
+
+  for (const top of CATEGORY_NAV) {
+    if (top.url === target) return [top];
+
+    for (const sub of top.children ?? []) {
+      if (sub.url === target) return [top, sub];
+
+      for (const leaf of sub.children ?? []) {
+        if (leaf.url === target) return [top, sub, leaf];
+      }
+    }
+  }
+
+  return [];
+}

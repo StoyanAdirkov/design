@@ -5,6 +5,7 @@ import {getSeoMeta, generateProductJsonLd} from '@cloudcart/nitrogen';
 import {Image, RichText, useOptimisticVariant} from '@cloudcart/nitrogen-react';
 import {PriceDual} from '~/components/PriceDual';
 import {ProductTabs} from '~/components/ProductTabs';
+import {findCategoryPath} from '~/lib/navigation';
 import {ArrowDownTrayIcon} from '@heroicons/react/24/outline';
 import {ProductForm} from '~/components/ProductForm';
 import {ProductImageGallery} from '~/components/ProductImageGallery';
@@ -124,10 +125,11 @@ function ProductDetails({product, variant}: {product: any; variant: any}) {
     <div className="self-start">
       <h1 className="text-[1.75rem] md:text-[2rem] font-bold tracking-tight leading-tight">{product.title}</h1>
 
-      {/* Мета редът на CloudCart: Категория · Производител · SKU */}
-      <dl className="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-[0.8rem]">
+      {/* Мета блокът на CloudCart: Категория на свой ред, отдолу
+          Производител и SKU един до друг, разделени с тънка линия. */}
+      <dl className="mt-4 space-y-1.5 border-t border-gray-200 pt-4 text-[0.85rem]">
         {product.collections?.nodes?.[0] ? (
-          <div className="flex gap-1.5">
+          <div className="flex flex-wrap gap-1.5">
             <dt className="text-gray-500">Категория:</dt>
             <dd>
               <Link
@@ -139,6 +141,7 @@ function ProductDetails({product, variant}: {product: any; variant: any}) {
             </dd>
           </div>
         ) : null}
+        <div className="flex flex-wrap gap-x-8 gap-y-1.5">
         {product.vendor ? (
           <div className="flex gap-1.5">
             <dt className="text-gray-500">Производител:</dt>
@@ -158,6 +161,7 @@ function ProductDetails({product, variant}: {product: any; variant: any}) {
             <dd className="font-medium text-dark">{variant.sku}</dd>
           </div>
         ) : null}
+        </div>
       </dl>
 
       {/* Rating */}
@@ -234,10 +238,21 @@ function LinkedProducts({products}: {products: any[]}) {
 /* --- Breadcrumbs --- */
 
 function ProductBreadcrumbs({product, collections}: {product: any; collections: any[]}) {
-  const items = [];
-  if (collections?.[0]) {
-    items.push({title: collections[0].title, to: `/collections/${collections[0].handle}`});
+  const items: Array<{title: string; to?: string}> = [];
+
+  // Живият им сайт показва целия път:
+  // Начало / Строителство / Сухи строителни смеси / Лепило-шпакловъчни… / продукт
+  // Storefront API-то дава само най-долната категория, затова родителите
+  // идват от дървото в lib/navigation.ts.
+  const leaf = collections?.[0];
+  const path = leaf ? findCategoryPath(leaf.handle) : [];
+
+  if (path.length) {
+    for (const node of path) items.push({title: node.title, to: node.url});
+  } else if (leaf) {
+    items.push({title: leaf.title, to: `/collections/${leaf.handle}`});
   }
+
   items.push({title: product.title});
   return <Breadcrumbs items={items} />;
 }

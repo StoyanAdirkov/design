@@ -71,6 +71,25 @@ export function PriceDual({data, amount, currency, size = 'md', className = ''}:
   );
 }
 
+/**
+ * Цената така, както изглежда на живия сайт на maxxmart:
+ * „9,83 € / 19,23 лв.“ — двете суми на един ред, разделени с наклонена
+ * черта, в бранд зелено. Ползва се на продуктовата страница.
+ */
+export function PriceCloudCart({data, amount, currency, className = ''}: Props) {
+  const raw = Number(data?.amount ?? amount ?? 0);
+  const cur = data?.currencyCode ?? currency;
+  if (!raw && raw !== 0) return null;
+
+  return (
+    <span
+      className={`block text-[1.9rem] font-bold leading-none tracking-tight text-brand-dark md:text-[2.15rem] ${className}`}
+    >
+      {formatEur(raw, cur)} <span className="text-gray-300">/</span> {formatBgn(raw, cur)}
+    </span>
+  );
+}
+
 /** Зачертана стара цена, също в двете валути. */
 export function PriceDualOld({data, amount, currency}: Props) {
   const raw = Number(data?.amount ?? amount ?? 0);
