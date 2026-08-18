@@ -6,9 +6,11 @@ interface ReviewListProps {
   reviews: ProductReviewNode[];
   summary: ProductReviewSummary | null;
   totalCount: number;
+  /** true, когато отзивите са демонстрационни — виж lib/demo-reviews.ts */
+  isDemo?: boolean;
 }
 
-export function ReviewList({reviews, summary, totalCount}: ReviewListProps) {
+export function ReviewList({reviews, summary, totalCount, isDemo}: ReviewListProps) {
   // Празно състояние вместо липсваща секция. Магазинът още няма нито
   // един отзив — приложението за отзиви не е инсталирано — но мястото
   // трябва да съществува, за да е ясно, че отзиви се събират.
@@ -26,7 +28,17 @@ export function ReviewList({reviews, summary, totalCount}: ReviewListProps) {
 
   return (
     <section id="otzivi" className="mt-16 pt-10 border-t border-gray-200">
-      <h2 className="text-2xl font-bold tracking-tight mb-8">Отзиви за продукта</h2>
+      <div className="mb-8 flex flex-wrap items-center gap-3">
+        <h2 className="text-2xl font-bold tracking-tight">Отзиви за продукта</h2>
+        {isDemo ? (
+          <span
+            className="rounded bg-amber-100 px-2 py-1 text-[0.68rem] font-bold uppercase tracking-wide text-amber-800"
+            title="Демонстрационни отзиви — изключват се преди магазинът да тръгне на живо"
+          >
+            Демо съдържание
+          </span>
+        ) : null}
+      </div>
 
       <div className="grid gap-10 md:grid-cols-[280px_1fr]">
         {/* Summary sidebar */}
@@ -57,7 +69,7 @@ function ReviewSummary({summary, totalCount, reviews}: {summary: ProductReviewSu
         <span className="text-5xl font-bold text-dark">{summary.averageRating.toFixed(1)}</span>
         <div>
           <StarRating rating={summary.averageRating} size="md" showEmpty />
-          <p className="text-sm text-gray-500 mt-1">{totalCount} {totalCount === 1 ? 'review' : 'reviews'}</p>
+          <p className="text-sm text-gray-500 mt-1">{totalCount} {totalCount === 1 ? 'отзив' : 'отзива'}</p>
         </div>
       </div>
 
@@ -135,7 +147,7 @@ function ReviewItem({review}: {review: ProductReviewNode}) {
 
 function formatDate(dateString: string): string {
   try {
-    return new Date(dateString).toLocaleDateString('en-US', {
+    return new Date(dateString).toLocaleDateString('bg-BG', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',

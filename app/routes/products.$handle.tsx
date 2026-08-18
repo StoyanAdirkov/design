@@ -9,6 +9,7 @@ import {ProductTabs} from '~/components/ProductTabs';
 import {ProductCarousel} from '~/components/ProductCarousel';
 import {ProductUsage} from '~/components/ProductUsage';
 import {parseUsage} from '~/lib/usage';
+import {DEMO_REVIEWS, DEMO_SUMMARY, DEMO_REVIEWS_ENABLED} from '~/lib/demo-reviews';
 import {findCategoryPath} from '~/lib/navigation';
 import {ArrowDownTrayIcon} from '@heroicons/react/24/outline';
 import {ProductForm} from '~/components/ProductForm';
@@ -70,6 +71,15 @@ export async function loader({params, context, request}: Route.LoaderArgs) {
 
 export default function ProductPage() {
   const {product, linkedProducts, collections, similar} = useLoaderData<typeof loader>();
+
+  // Реалните отзиви печелят винаги. Демо отзивите се ползват само
+  // докато магазинът няма нито един — виж lib/demo-reviews.ts.
+  const realCount =
+    (product as any).reviews?.totalCount ?? (product as any).reviewSummary?.totalCount ?? 0;
+  const usingDemo = DEMO_REVIEWS_ENABLED && realCount === 0;
+  const reviewSummary = usingDemo ? DEMO_SUMMARY : (product as any).reviewSummary;
+  const reviewNodes = usingDemo ? DEMO_REVIEWS : ((product as any).reviews?.nodes ?? []);
+  const reviewCount = usingDemo ? DEMO_SUMMARY.totalCount : realCount;
   const firstVariant = product.variants.nodes[0];
   const {selectedVariant} = useOptimisticVariant(product, firstVariant);
   const variant = selectedVariant ?? firstVariant;
@@ -83,7 +93,12 @@ export default function ProductPage() {
 
       <div className="grid gap-8 md:grid-cols-2 md:gap-12 lg:grid-cols-[7fr_5fr] lg:gap-16">
         <ProductMedia product={product} variant={variant} />
-        <ProductDetails product={product} variant={variant} />
+        <ProductDetails
+          product={product}
+          variant={variant}
+          reviewSummary={reviewSummary}
+          reviewCount={reviewCount}
+        />
       </div>
 
       {/* „Как се използва“ стои преди описанието: практичното преди
@@ -102,13 +117,12 @@ export default function ProductPage() {
       />
 
       {/* Reviews */}
-      {(
-        <ReviewList
-          reviews={(product as any).reviews?.nodes ?? []}
-          summary={(product as any).reviewSummary}
-          totalCount={(product as any).reviews?.totalCount ?? (product as any).reviewSummary?.totalCount ?? 0}
-        />
-      )}
+      <ReviewList
+        reviews={reviewNodes as any}
+        summary={reviewSummary as any}
+        totalCount={reviewCount}
+        isDemo={usingDemo}
+      />
 
       {linkedProducts.length > 0 && (
         <LinkedProducts products={linkedProducts} />
@@ -176,7 +190,17 @@ function ProductMedia({product, variant}: {product: any; variant: any}) {
 
 /* --- Product Details (Right Column) --- */
 
-function ProductDetails({product, variant}: {product: any; variant: any}) {
+function ProductDetails({
+  product,
+  variant,
+  reviewSummary,
+  reviewCount,
+}: {
+  product: any;
+  variant: any;
+  reviewSummary?: any;
+  reviewCount?: number;
+}) {
   const properties: Array<{name: string; values: string[]}> = product.properties ?? [];
   const files: Array<{id: string; name: string; filename: string; url: string; fileSize: number}> =
     product.files?.nodes ?? [];
@@ -238,11 +262,11 @@ function ProductDetails({product, variant}: {product: any; variant: any}) {
       {/* Рейтинг с линк към отзивите — bulgarbiotic.bg слага „(75) Виж
           отзивите →“ точно под заглавието и това е добър навик: цифрата
           е доверие, а линкът спестява скролване. */}
-      {product.reviewSummary && product.reviewSummary.totalCount > 0 ? (
+      {reviewSummary && (reviewCount ?? 0) > 0 ? (
         <div className="mt-2 flex flex-wrap items-center gap-3">
           <StarRating
-            rating={product.reviewSummary.averageRating}
-            count={product.reviewSummary.totalCount}
+            rating={reviewSummary.averageRating}
+            count={reviewCount}
             size="md"
           />
           <a

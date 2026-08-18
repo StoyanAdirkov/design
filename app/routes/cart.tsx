@@ -53,6 +53,36 @@ export async function action({request, context}: Route.ActionArgs) {
         }
         break;
       }
+      // Добавяне по handle, когато картата не знае варианта.
+      // Списъчните заявки на CloudCart не връщат варианти, затова
+      // картите в каруселите нямаха merchandiseId и бутонът пишеше
+      // „Избери“. Вместо да теглим варианти за 12 продукта при всяко
+      // зареждане, разрешаваме продукта тук — една заявка, и то само
+      // когато някой наистина натисне.
+      case 'ADD_BY_HANDLE': {
+        const handle = String(fd.get('handle') ?? '');
+        const product: any = handle ? await ctx.storefront.getProduct(handle) : null;
+        const variants: any[] = product?.variants?.nodes ?? [];
+
+        if (!product || !variants.length) {
+          cart = await ctx.cart.get();
+          errors = [{message: 'Продуктът не е намерен.'}];
+          break;
+        }
+
+        // С няколко разновидности изборът е на клиента — пращаме го
+        // на страницата на продукта, вместо да гадаем коя иска.
+        if (variants.length > 1) {
+          return redirect(`/products/${handle}`);
+        }
+
+        const result = await ctx.cart.addLines([
+          {merchandiseId: variants[0].id, quantity: Number(fd.get('quantity') || 1)},
+        ]);
+        cart = result.cart;
+        errors = result.userErrors;
+        break;
+      }
       case 'UPDATE_CART': {
         const result = await ctx.cart.updateLines([{id: String(fd.get('lineId')), quantity: Number(fd.get('quantity'))}]);
         cart = result.cart;

@@ -5,6 +5,7 @@ import {PriceDual, formatEur, formatBgn} from './PriceDual';
 import {StarRating} from './StarRating';
 import {WishlistButton} from './WishlistButton';
 import {AddToCartButton} from './AddToCartButton';
+import {AddByHandleButton} from './AddByHandleButton';
 import {getUnitPrice, formatUnitPrice} from '~/lib/unit-price';
 
 /**
@@ -222,17 +223,22 @@ export function ProductCard({
               >
                 Купи
               </AddToCartButton>
+            ) : available ? (
+              // Картата не знае варианта (списъчната заявка не го връща),
+              // затова бутонът праща handle-а и сървърът го разрешава.
+              <AddByHandleButton
+                handle={product.handle}
+                className="flex h-10 w-full items-center justify-center rounded-lg bg-brand text-[0.82rem] font-semibold text-white transition-all hover:bg-brand-dark hover:shadow-[0_6px_18px_-6px_rgba(60,180,74,0.85)] disabled:opacity-60"
+              >
+                Купи
+              </AddByHandleButton>
             ) : (
               <Link
                 to={`/products/${product.handle}`}
                 prefetch="intent"
-                className={`flex h-10 w-full items-center justify-center rounded-lg text-[0.82rem] font-semibold transition-all hover:no-underline ${
-                  available
-                    ? 'border border-brand text-brand-dark hover:bg-brand hover:text-white'
-                    : 'border border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50'
-                }`}
+                className="flex h-10 w-full items-center justify-center rounded-lg border border-gray-200 text-[0.82rem] font-semibold text-gray-600 transition-all hover:border-gray-300 hover:bg-gray-50 hover:no-underline"
               >
-                {available ? 'Избери' : (statusLabel ?? 'Виж')}
+                {statusLabel ?? 'Виж'}
               </Link>
             )}
           </div>
