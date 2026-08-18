@@ -16,6 +16,7 @@ import {SEASONAL_CATEGORIES} from '~/lib/seasonal-categories';
 import {BundleOffer} from '~/components/BundleOffer';
 import {BUNDLE_ITEMS} from '~/lib/bundle';
 import {SALE_PICKS, SALE_PERCENT, SALE_ENABLED, SALE_TITLE, SALE_SUBTITLE} from '~/lib/sale';
+import {ClubCard} from '~/components/ClubCard';
 
 export const meta: Route.MetaFunction = () =>
   getSeoMeta({
@@ -171,6 +172,8 @@ export default function Homepage() {
           </Suspense>
         </div>
       ) : null}
+
+      <ClubCard className="mt-12 -mx-4 sm:-mx-5 xl:-mx-8" />
 
       <section className="mt-12">
         <h2 className="text-2xl font-bold tracking-tight mb-5">Препоръчани продукти</h2>

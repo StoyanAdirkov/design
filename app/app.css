@@ -237,3 +237,49 @@
     animation: none;
   }
 }
+
+/* ══════════════════════════════════════════════════════════════════
+   Секция „Клубна карта“
+   ══════════════════════════════════════════════════════════════════ */
+
+/* картата леко се носи и се накланя обратно при задържане */
+@keyframes club-float {
+  0%, 100% { transform: translateY(0) rotate(-3deg); }
+  50%      { transform: translateY(-14px) rotate(-1.5deg); }
+}
+.club-float {
+  animation: club-float 6s ease-in-out infinite;
+}
+
+/* отблясък, който минава по картата — като светлина по пластмаса */
+@keyframes club-glint {
+  0%   { transform: translateX(-140%) rotate(18deg); opacity: 0; }
+  12%  { opacity: 1; }
+  40%  { opacity: 0; }
+  100% { transform: translateX(320%) rotate(18deg); opacity: 0; }
+}
+.club-glint::after {
+  content: '';
+  position: absolute;
+  top: -40%;
+  bottom: -40%;
+  left: 0;
+  width: 22%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.55),
+    transparent
+  );
+  animation: club-glint 7s ease-in-out infinite;
+  animation-delay: 2s;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .club-float,
+  .club-glint::after {
+    animation: none;
+  }
+  .club-float { transform: rotate(-3deg); }
+}
