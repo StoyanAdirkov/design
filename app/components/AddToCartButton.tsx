@@ -5,7 +5,7 @@ import {useAside} from './Aside';
 export function AddToCartButton({
   merchandiseId,
   quantity = 1,
-  children = 'Add to Cart',
+  children = 'Добави в количката',
   className,
   disabled,
 }: {
@@ -19,7 +19,7 @@ export function AddToCartButton({
   const {open} = useAside();
   const isAdding = fetcher.state !== 'idle';
 
-  // Open cart drawer after successful add
+  // след успешно добавяне отваряме панела на количката
   useEffect(() => {
     if (fetcher.state === 'idle' && fetcher.data) {
       open('cart');
@@ -36,7 +36,7 @@ export function AddToCartButton({
         className={className}
         disabled={disabled || isAdding}
       >
-        {isAdding ? 'Adding...' : children}
+        {isAdding ? 'Добавя се…' : children}
       </button>
     </fetcher.Form>
   );
