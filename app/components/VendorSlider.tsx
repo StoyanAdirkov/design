@@ -51,19 +51,20 @@ export function VendorSlider({className = ''}: {className?: string}) {
       {/* зеленият кант горе връзва лентата с хедъра и USP-тата */}
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand/50 to-transparent" />
 
-      <div className="relative px-5 pb-7 pt-6 xl:px-8">
-        <div className="mb-4 flex items-baseline gap-3">
-          <h2 className="text-lg font-bold tracking-tight text-dark">
-            При нас ще откриете
-          </h2>
-          <span className="text-[0.78rem] text-gray-500">
-            над 300 марки в наличност
-          </span>
-        </div>
+      {/* Заглавието беше 18px с 24/28px поле — 96px от общо 200px за един
+          ред текст, при това с празно поле надясно. Сега е дребен надпис,
+          който само означава лентата, вместо да я надвиква. */}
+      <div className="relative flex items-baseline gap-2.5 px-5 pt-3.5 xl:px-8">
+        <h2 className="text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-gray-700">
+          При нас ще откриете
+        </h2>
+        <span className="text-[0.72rem] text-gray-500">
+          над 300 марки в наличност
+        </span>
       </div>
 
       {/* пистата */}
-      <div className="group/marquee relative pb-7">
+      <div className="group/marquee relative py-4">
         <div className="marquee flex w-max">
           {track(false)}
           {track(true)}
