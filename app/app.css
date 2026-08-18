@@ -155,3 +155,34 @@
 @media (prefers-reduced-motion: reduce) {
   .nav-underline::after { transition: none; }
 }
+
+/* ══════════════════════════════════════════════════════════════════
+   Marquee за лентата с марките
+   Пистата съдържа два еднакви списъка, затова -50% е точно едно
+   завъртане и шев не се вижда.
+   ══════════════════════════════════════════════════════════════════ */
+@keyframes marquee-scroll {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(-50%, 0, 0); }
+}
+
+.marquee {
+  /* пистата е 2×43 лога; 80s дава около 95px/s — достатъчно бавно,
+     че окото да хване лого, без да изглежда замръзнала */
+  animation: marquee-scroll 80s linear infinite;
+  will-change: transform;
+}
+
+/* спира при задържане, за да може човек да прочете и кликне лого */
+.group\/marquee:hover .marquee,
+.group\/marquee:focus-within .marquee {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee {
+    animation: none;
+    /* без движение лентата става обикновен хоризонтален скрол */
+    overflow-x: auto;
+  }
+}
