@@ -99,19 +99,25 @@ export function SocialFeed({className = ''}: {className?: string}) {
                     className="size-full rounded-none object-cover transition-transform duration-500 group-hover:scale-110"
                   />
 
-                  <span className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-ink via-ink/60 to-transparent p-3 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                  {/* Харесванията и коментарите СТОЯТ ВИНАГИ. Преди бяха
+                      вътре в блока, който изплува при задържане — тоест на
+                      телефон никой не ги виждаше, защото там няма hover. */}
+                  <span className="pointer-events-none absolute inset-x-0 bottom-0 flex items-center gap-3 bg-gradient-to-t from-ink/85 to-transparent px-3 pb-2.5 pt-6 text-[0.72rem] font-semibold text-white">
+                    <span className="flex items-center gap-1">
+                      <HeartIcon className="size-3.5 text-brand-bright" />
+                      {post.likes}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <ChatBubbleOvalLeftIcon className="size-3.5 text-brand-bright" />
+                      {post.comments}
+                    </span>
+                  </span>
+
+                  {/* Текстът на публикацията остава за задържане — на
+                      малък екран три реда върху снимка са само шум. */}
+                  <span className="absolute inset-0 hidden flex-col justify-end bg-gradient-to-t from-ink via-ink/60 to-transparent p-3 pb-9 opacity-0 transition-opacity duration-300 group-hover:opacity-100 md:flex">
                     <span className="line-clamp-3 text-[0.72rem] leading-snug text-gray-200">
                       {post.caption}
-                    </span>
-                    <span className="mt-2 flex items-center gap-3 text-[0.72rem] font-semibold text-white">
-                      <span className="flex items-center gap-1">
-                        <HeartIcon className="size-3.5 text-brand-bright" />
-                        {post.likes}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <ChatBubbleOvalLeftIcon className="size-3.5 text-brand-bright" />
-                        {post.comments}
-                      </span>
                     </span>
                   </span>
                 </a>

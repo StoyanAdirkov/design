@@ -241,7 +241,12 @@ export default function Homepage() {
         </Await>
       </Suspense>
 
-      {SOCIAL_DEMO ? <SocialFeed className="-mx-4 sm:-mx-5 xl:-mx-8" /> : null}
+      {/* Отрицателният долен отстъп изяжда py-6/py-8 на <main>. Без него
+          между тъмния фийд и тъмния футър оставаше 24px светла ивица —
+          изглеждаше като бяла черта под лентата. */}
+      {SOCIAL_DEMO ? (
+        <SocialFeed className="-mx-4 -mb-6 sm:-mx-5 md:-mb-8 xl:-mx-8" />
+      ) : null}
 
     </div>
   );
