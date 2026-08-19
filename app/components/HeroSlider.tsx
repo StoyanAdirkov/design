@@ -105,11 +105,40 @@ export function HeroSlider({slides, className = ''}: {slides: HeroSlide[]; class
 
         {/* лек тъмен ръб долу, за да седят точките върху всяка снимка */}
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/45 to-transparent" />
+
+        {count > 1 ? (
+          <>
+            <SliderButton side="left" onClick={() => go(index - 1)} />
+            <SliderButton side="right" onClick={() => go(index + 1)} />
+
+            {/* индикатори — вътре в рамката на снимката, за да не слизат
+                в лентата под нея на телефон */}
+            <div className="absolute inset-x-0 bottom-4 flex items-center justify-center gap-2">
+              {slides.map((slide, i) => (
+                <button
+                  key={slide.src}
+                  type="button"
+                  onClick={() => go(i)}
+                  aria-label={`Слайд ${i + 1} от ${count}`}
+                  aria-current={i === index}
+                  className={`h-2 rounded-full transition-all duration-300 ${
+                    i === index
+                      ? 'w-8 bg-brand shadow-[0_0_12px_rgba(60,180,74,0.9)]'
+                      : 'w-2 bg-white/45 hover:bg-white/70'
+                  }`}
+                />
+              ))}
+            </div>
+          </>
+        ) : null}
       </div>
 
-      {/* Лентата под банера — само на телефон. Виж бележката най-горе. */}
+      {/* Лентата под банера — само на телефон. Виж бележката най-горе.
+          `relative` е нужно: стрелките и точките са абсолютни спрямо
+          секцията, а без него лентата им минаваше отдолу и точките
+          падаха точно върху заглавието ѝ. */}
       {active?.title ? (
-        <div className="flex items-center justify-between gap-3 bg-ink px-4 py-3 md:hidden">
+        <div className="relative z-10 flex items-center justify-between gap-3 bg-ink px-4 py-3 md:hidden">
           <span className="min-w-0 flex-1 text-[0.95rem] font-bold leading-tight text-white">
             {active.title}
           </span>
@@ -124,30 +153,7 @@ export function HeroSlider({slides, className = ''}: {slides: HeroSlide[]; class
         </div>
       ) : null}
 
-      {count > 1 ? (
-        <>
-          <SliderButton side="left" onClick={() => go(index - 1)} />
-          <SliderButton side="right" onClick={() => go(index + 1)} />
 
-          {/* индикатори */}
-          <div className="absolute inset-x-0 bottom-4 flex items-center justify-center gap-2">
-            {slides.map((slide, i) => (
-              <button
-                key={slide.src}
-                type="button"
-                onClick={() => go(i)}
-                aria-label={`Слайд ${i + 1} от ${count}`}
-                aria-current={i === index}
-                className={`h-1.5 rounded-full transition-all duration-300 ${
-                  i === index
-                    ? 'w-8 bg-brand shadow-[0_0_12px_rgba(60,180,74,0.9)]'
-                    : 'w-2.5 bg-white/45 hover:bg-white/70'
-                }`}
-              />
-            ))}
-          </div>
-        </>
-      ) : null}
     </section>
   );
 }
