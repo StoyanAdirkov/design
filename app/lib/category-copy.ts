@@ -37,22 +37,23 @@ export interface CategoryCopy {
  * тази на главната си: по-добре вярна снимка на раздела, отколкото
  * случайна снимка на подраздела.
  */
-const ROOT_IMAGES: Record<string, {src: string; alt: string}> = {
-  stroitelstvo: {src: '/nav/stroitelstvo.jpg', alt: 'Строителни материали на обект'},
-  'boi-lakove-i-mazilki': {src: '/nav/boi.jpg', alt: 'Бои, четки и валяци'},
+const ROOT_IMAGES: Record<string, {src: string; alt: string; icon: string}> = {
+  stroitelstvo: {src: '/nav/stroitelstvo.jpg', alt: 'Строителни материали на обект', icon: 'building'},
+  'boi-lakove-i-mazilki': {src: '/nav/boi.jpg', alt: 'Бои, четки и валяци', icon: 'paint'},
   'instrumenti-krepejni-elementi-pomoshtni-sredstva': {
     src: '/nav/instrumenti.jpg',
     alt: 'Ръчни и електроинструменти',
+    icon: 'tool',
   },
-  'ovk-vik': {src: '/nav/vik.jpg', alt: 'ВиК материали и фитинги'},
-  otoplenie: {src: '/nav/otoplenie.jpg', alt: 'Отопление и електроуреди'},
-  'elektromateriali-i-osvetlenie': {src: '/nav/osvetlenie.jpg', alt: 'Осветление и електроматериали'},
-  'banya-i-kuhnya': {src: '/nav/banya.jpg', alt: 'Обзавеждане за баня'},
-  'podovi-pokritiya': {src: '/nav/podovi.jpg', alt: 'Подови и стенни покрития'},
-  'pomoshtni-rabotni-sredstva': {src: '/nav/obleklo.jpg', alt: 'Работно облекло и защитни средства'},
-  avto: {src: '/nav/avto.jpg', alt: 'Авто аксесоари и консумативи'},
-  gradina: {src: '/nav/gradina.jpg', alt: 'Градински инструменти и техника'},
-  'interior-i-obzavejdane': {src: '/nav/za-doma.jpg', alt: 'Обзавеждане и декорация за дома'},
+  'ovk-vik': {src: '/nav/vik.jpg', alt: 'ВиК материали и фитинги', icon: 'pipe'},
+  otoplenie: {src: '/nav/otoplenie.jpg', alt: 'Отопление и електроуреди', icon: 'flame'},
+  'elektromateriali-i-osvetlenie': {src: '/nav/osvetlenie.jpg', alt: 'Осветление и електроматериали', icon: 'bulb'},
+  'banya-i-kuhnya': {src: '/nav/banya.jpg', alt: 'Обзавеждане за баня', icon: 'bath'},
+  'podovi-pokritiya': {src: '/nav/podovi.jpg', alt: 'Подови и стенни покрития', icon: 'floor'},
+  'pomoshtni-rabotni-sredstva': {src: '/nav/obleklo.jpg', alt: 'Работно облекло и защитни средства', icon: 'helmet'},
+  avto: {src: '/nav/avto.jpg', alt: 'Авто аксесоари и консумативи', icon: 'car'},
+  gradina: {src: '/nav/gradina.jpg', alt: 'Градински инструменти и техника', icon: 'garden'},
+  'interior-i-obzavejdane': {src: '/nav/za-doma.jpg', alt: 'Обзавеждане и декорация за дома', icon: 'home'},
 };
 
 const COPY: Record<string, CategoryCopy> = {
@@ -222,4 +223,14 @@ export function getCategoryCopy(
     'Ако не откривате нужния артикул или ви трябва количество за цял обект, обадете се на 02 81 80 826 — проверяваме наличността по складове и уточняваме срок.',
   ];
   return withImage({heading: title, paragraphs});
+}
+
+/** Снимка и икона на главната категория — за заглавната лента. */
+export function getRootArt(handle?: string | null): {
+  src: string;
+  alt: string;
+  icon: string;
+} | null {
+  if (!handle) return null;
+  return ROOT_IMAGES[handle] ?? null;
 }

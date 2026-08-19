@@ -8,7 +8,8 @@ import {ProductFilters} from '~/components/ProductFilters';
 import {Breadcrumbs} from '~/components/Breadcrumbs';
 import {Pagination, PageNav} from '~/components/Pagination';
 import {CategoryCopy} from '~/components/CategoryCopy';
-import {getCategoryCopy} from '~/lib/category-copy';
+import {getCategoryCopy, getRootArt} from '~/lib/category-copy';
+import {CategoryHero} from '~/components/CategoryHero';
 import {buildFiltersFromParams, buildSortFromParams} from '~/lib/filters';
 import {getPageNumber, pageVariables, verifyPage} from '~/lib/pagination';
 import {getCollectionListing} from '~/lib/product-listing';
@@ -210,6 +211,9 @@ export default function CollectionPage() {
   // подразделът няма своя.
   const rootHandle = (col.breadcrumb ?? [])[0]?.handle ?? col.handle;
 
+  const rootTitle = (col.breadcrumb ?? [])[0]?.title ?? null;
+  const art = getRootArt(rootHandle);
+
   const copy = getCategoryCopy(
     col.handle,
     col.title,
@@ -227,11 +231,16 @@ export default function CollectionPage() {
     <div className="w-full">
       <Breadcrumbs items={breadcrumbItems} />
 
-      {/* Описанието от магазина се показва в дъното, не тук — виж
-          CategoryCopy. Иначе същият текст щеше да излезе два пъти. */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold tracking-tight">{collection.title}</h1>
-      </div>
+      {/* Заглавна лента. Пълното описание стои в дъното (CategoryCopy) —
+          тук влиза само първото изречение, за да не се повтаря. */}
+      <CategoryHero
+        title={col.title}
+        parentTitle={rootHandle !== col.handle ? rootTitle : null}
+        tagline={copy?.paragraphs?.[0] ?? col.description}
+        image={art?.src}
+        icon={art?.icon}
+        count={totalCount}
+      />
 
       {/* Подкатегории */}
       {showChildren && (

@@ -8,6 +8,7 @@ import {
   filterGroupKey,
 } from '~/lib/filter-labels';
 import {ChevronDownIcon} from '@heroicons/react/20/solid';
+import {FilterIcon, filterIconFor} from './FilterIcon';
 
 interface ProductFiltersProps {
   filters?: Filter[];
@@ -171,6 +172,7 @@ export function ProductFilters({filters = [], totalCount}: ProductFiltersProps) 
       {/* Подреждане */}
       <div className="flex flex-col gap-1.5">
         <label className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-gray-500">
+          <FilterIcon name="sort" className="size-[1.05rem] shrink-0 text-brand" />
           Подреди по
         </label>
         <select
@@ -230,9 +232,20 @@ export function ProductFilters({filters = [], totalCount}: ProductFiltersProps) 
   );
 }
 
+/**
+ * Заглавие на група с икона отляво.
+ *
+ * Иконата е в бранд зелено, а текстът остава сив: цветното петно води
+ * окото надолу по колоната, без да се бие с активните отметки.
+ */
 function GroupLabel({children}: {children: React.ReactNode}) {
+  const label = typeof children === 'string' ? children : '';
+  const icon = filterIconFor(label);
   return (
     <label className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-gray-500">
+      {icon ? (
+        <FilterIcon name={icon} className="size-[1.05rem] shrink-0 text-brand" />
+      ) : null}
       {children}
     </label>
   );
@@ -296,21 +309,38 @@ function FilterListGroup({
     <div className="flex flex-col gap-1.5">
       <GroupLabel>{group.label}</GroupLabel>
       <div className="flex flex-col gap-1">
-        {visibleValues.map((v) => (
-          <label
-            key={v.id}
-            className="flex cursor-pointer items-center gap-1.5 py-0.5 text-[0.85rem] [&_input]:shrink-0"
-          >
-            <input
-              type="checkbox"
-              className="form-checkbox rounded border-gray-300 text-brand focus:ring-brand"
-              checked={isFilterActive(searchParams, v.input)}
-              onChange={() => onToggle(v.input)}
-            />
-            <span className="flex-1 truncate text-dark">{translateFilterValue(v.label)}</span>
-            <span className="shrink-0 text-xs text-gray-400">({v.count})</span>
-          </label>
-        ))}
+        {visibleValues.map((v) => {
+          const active = isFilterActive(searchParams, v.input);
+          return (
+            <label
+              key={v.id}
+              className={`relative flex cursor-pointer items-center gap-1.5 rounded-md py-1 pl-2 pr-1.5 text-[0.85rem] transition-colors duration-150 [&_input]:shrink-0 ${
+                active ? 'bg-brand/10' : 'hover:bg-gray-50'
+              }`}
+            >
+              {/* Зелената чертичка отляво прави избраното видимо и когато
+                  окото минава бързо по колоната — самата отметка е дребна. */}
+              {active ? (
+                <span
+                  aria-hidden="true"
+                  className="absolute left-0 top-1/2 h-4 w-[3px] -translate-y-1/2 rounded-full bg-brand"
+                />
+              ) : null}
+              <input
+                type="checkbox"
+                className="form-checkbox rounded border-gray-300 text-brand focus:ring-brand"
+                checked={active}
+                onChange={() => onToggle(v.input)}
+              />
+              <span
+                className={`flex-1 truncate ${active ? 'font-semibold text-brand-dark' : 'text-dark'}`}
+              >
+                {translateFilterValue(v.label)}
+              </span>
+              <span className="shrink-0 text-xs text-gray-400">({v.count})</span>
+            </label>
+          );
+        })}
       </div>
       {hasMore && (
         <button
@@ -539,7 +569,8 @@ function RareGroups({
         aria-expanded={open}
         className="flex cursor-pointer items-center justify-between gap-2 border-none bg-transparent p-0 text-left font-sans text-xs font-semibold uppercase tracking-wider text-gray-500 transition-colors hover:text-dark"
       >
-        <span>
+        <span className="flex items-center gap-1.5">
+          <FilterIcon name="more" className="size-[1.05rem] shrink-0 text-brand" />
           Още характеристики{' '}
           <span className="font-normal normal-case text-gray-400">({count})</span>
         </span>
