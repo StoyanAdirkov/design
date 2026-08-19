@@ -80,8 +80,11 @@ export function ProductForm({product, selectedVariant}: ProductFormProps) {
 
       {variant && <StockIndicator variant={variant} />}
 
-      {/* Обектите за взимане — веднага под наличността */}
-      <StorePickup />
+      {/* Обектите, в които тази разновидност е налична */}
+      <StorePickup
+        variantId={variant?.id}
+        totalQuantity={variant?.quantityAvailable}
+      />
 
       {/* Variant Selector */}
       <VariantSelector product={product}>
