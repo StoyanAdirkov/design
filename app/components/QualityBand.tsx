@@ -98,11 +98,26 @@ export function QualityBand({className = ''}: {className?: string}) {
    * ефект, а не в атрибут, защото на сървъра няма matchMedia.
    */
   useEffect(() => {
+    const el = video.current;
+    if (!el) return;
+
+    // Заглушаването се налага и през свойството, не само през атрибута.
+    // React понякога не пренася `muted` при хидратация, а браузърът спира
+    // автоматичното пускане на всяко видео със звук — тогава лентата
+    // остава на постера без видима причина. Същото и за повтарянето.
+    el.muted = true;
+    el.loop = true;
+
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (reduce) {
-      video.current?.pause();
+      el.pause();
       setPlaying(false);
+      return;
     }
+
+    // Ако все пак е спряно (връщане от друг таб, тежка страница), го
+    // побутваме — обещанието е, че върви само.
+    void el.play().catch(() => setPlaying(false));
   }, []);
 
   const toggle = () => {
