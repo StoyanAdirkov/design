@@ -130,7 +130,7 @@ export function QualityBand({className = ''}: {className?: string}) {
             loop
             playsInline
             preload="metadata"
-            aria-label="Складът на maxxmart — рафтове със строителни материали"
+            aria-label="Рафтове със строителни материали в склад"
           />
 
           {/* Лек градиент отдолу, за да се чете надписът върху всеки кадър */}
@@ -139,8 +139,13 @@ export function QualityBand({className = ''}: {className?: string}) {
             className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/55 to-transparent"
           />
 
+          {/* Надписът НЕ твърди, че това е складът на maxxmart — не е.
+              Клипът е стоков (Pexels). Първата версия пишеше „Складът зад
+              26-те обекта", което представяше чужди кадри за техни.
+              Говори за наличността, която е измерена и вярна, а не за
+              сградата на екрана. Сменя се, щом дадат свои кадри. */}
           <p className="absolute bottom-4 left-4 right-16 text-[0.8rem] font-medium leading-snug text-white/95">
-            Складът зад 26-те обекта — затова поръчката тръгва днес, а не
+            8 от 10 артикула са налични веднага — поръчката тръгва днес, а не
             следващата седмица.
           </p>
 

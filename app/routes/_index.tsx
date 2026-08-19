@@ -181,8 +181,8 @@ export default function Homepage() {
         />
       </div>
 
-      {/* ⚠ Изключено: твърдението за партньорство не е потвърдено.
-          Виж бележката в PartnerBand.tsx. */}
+      {/* ⚠ Макет: партньорството не е потвърдено публично. Включено по
+          решение на екипа за представянето — виж PartnerBand.tsx. */}
       <PartnerBand className="mt-12" />
 
       <div className="mt-12">
