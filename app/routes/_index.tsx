@@ -52,13 +52,6 @@ export async function loader({context, request}: Route.LoaderArgs) {
   const collections = await ctx.storefront.getCollections(1);
   const featuredCollection = collections[0] ?? null;
 
-  const recommendedProducts = ctx.storefront
-    .getProducts(4)
-    .catch((error: Error) => {
-      console.error(error);
-      return [];
-    });
-
   // Сезонните препоръки се дърпат по handle, за да са цените и
   // наличността винаги живи, вместо да се замразяват в кода.
   // Заявките вървят паралелно и всяка се проваля поотделно — един
@@ -129,7 +122,6 @@ export async function loader({context, request}: Route.LoaderArgs) {
 
   return {
     featuredCollection,
-    recommendedProducts,
     summerProducts,
     bundleProducts,
     saleProducts,
@@ -140,7 +132,6 @@ export async function loader({context, request}: Route.LoaderArgs) {
 export default function Homepage() {
   const {
     featuredCollection,
-    recommendedProducts,
     summerProducts,
     bundleProducts,
     saleProducts,
@@ -228,20 +219,6 @@ export default function Homepage() {
 
       {SOCIAL_DEMO ? <SocialFeed className="-mx-4 sm:-mx-5 xl:-mx-8" /> : null}
 
-      <section className="mt-12">
-        <h2 className="text-2xl font-bold tracking-tight mb-5">Препоръчани продукти</h2>
-        <Suspense fallback={<div className="text-gray-500">Зареждане…</div>}>
-          <Await resolve={recommendedProducts}>
-            {(products) => (
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
-                {products.map((product, i) => (
-                  <ProductCard key={product.id} product={product} loading={i < 2 ? 'eager' : 'lazy'} />
-                ))}
-              </div>
-            )}
-          </Await>
-        </Suspense>
-      </section>
     </div>
   );
 }
