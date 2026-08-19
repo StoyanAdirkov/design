@@ -3,10 +3,10 @@ import {useLoaderData, data, Link, useSearchParams} from 'react-router';
 import type {Route} from './+types/collections.$handle';
 import {getContext} from '~/lib/context';
 import {getSeoMeta} from '@cloudcart/nitrogen';
-import {Image} from '@cloudcart/nitrogen-react';
 import {ProductCard} from '~/components/ProductCard';
 import {ProductFilters} from '~/components/ProductFilters';
 import {SubcategoryFilter} from '~/components/SubcategoryFilter';
+import {SubcategoryChips} from '~/components/SubcategoryChips';
 import {FilterIcon} from '~/components/FilterIcon';
 import {useHeaderOffset} from '~/lib/use-header-offset';
 import {Breadcrumbs} from '~/components/Breadcrumbs';
@@ -249,7 +249,6 @@ export default function CollectionPage() {
   breadcrumbItems.push({title: col.title});
 
   const children = col.children?.nodes ?? [];
-  const showChildren = col.displayChildren && children.length > 0;
 
   // Първата троха е главната категория — оттам идва снимката, когато
   // подразделът няма своя.
@@ -286,29 +285,10 @@ export default function CollectionPage() {
         count={totalCount}
       />
 
-      {/* Подкатегории */}
-      {showChildren && (
-        <div className="scrollbar-none mb-8 flex gap-3 overflow-x-auto pb-2">
-          {children.map((child: any) => (
-            <Link
-              key={child.id}
-              to={`/collections/${child.handle}`}
-              className="flex shrink-0 items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 py-1.5 pl-1.5 pr-3 text-xs font-medium text-dark transition-[border-color,background] duration-150 hover:border-gray-400 hover:bg-gray-100 hover:no-underline"
-              prefetch="intent"
-            >
-              {child.image?.url ? (
-                <Image data={child.image} alt={child.title} className="size-7 rounded object-cover" />
-              ) : (
-                <img src="/noimage.svg" alt={child.title} className="size-7 rounded object-cover" />
-              )}
-              <span className="whitespace-nowrap">{child.title}</span>
-              {child.productsCount != null && (
-                <span className="text-[0.7rem] text-gray-400">{child.productsCount}</span>
-              )}
-            </Link>
-          ))}
-        </div>
-      )}
+      {/* Подкатегориите и проектите са два отделни входа към каталога:
+          първото е структурата на магазина, второто — задачата на човека.
+          Затова са на отделни редове, категориите отгоре. */}
+      <SubcategoryChips items={children} className="mb-7" />
 
       {/* Пазарувай по проект — виж lib/projects.ts */}
       {projects.length > 0 && (
