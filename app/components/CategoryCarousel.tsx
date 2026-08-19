@@ -61,8 +61,11 @@ export function CategoryCarousel({
               className="absolute inset-0 size-full rounded-none object-cover transition-transform duration-[900ms] ease-out will-change-transform group-hover:scale-110 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
             />
 
-            {/* градиент — потъмнява при задържане, за да остане текстът четим */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-black/5 transition-all duration-500 group-hover:from-black/90 group-hover:via-black/55" />
+            {/* Затъмнението беше from-black/85 via-black/35 — покриваше
+                снимката почти изцяло и от категорията се виждаше силует.
+                Сега тъмното е само в долната третина, колкото текстът да е
+                четим; горните две трети остават чисти. */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent via-40% to-transparent transition-all duration-500 group-hover:from-black/85" />
 
             {/* зелено сияние, което се появява отдолу */}
             <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-brand/35 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
@@ -83,8 +86,10 @@ export function CategoryCarousel({
       </div>
 
         {/* меко избледняване в двата края */}
-        <div className="pointer-events-none absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-white to-transparent" />
-        <div className="pointer-events-none absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-white to-transparent" />
+        {/* Избледняването беше по 16 стъпки от всяка страна и на телефон
+            изяждаше половин плочка. Свито е и изчезва под sm. */}
+        <div className="pointer-events-none absolute inset-y-0 left-0 hidden w-10 bg-gradient-to-r from-white to-transparent sm:block" />
+        <div className="pointer-events-none absolute inset-y-0 right-0 hidden w-10 bg-gradient-to-l from-white to-transparent sm:block" />
       </div>
     </section>
   );

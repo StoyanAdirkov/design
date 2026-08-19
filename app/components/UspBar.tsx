@@ -93,11 +93,16 @@ export function UspBar({className = ''}: {className?: string}) {
         {/* тънка зелена нишка отгоре, за да върже лентата с хедъра */}
         <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand/60 to-transparent" />
 
-        <ul className="scrollbar-none flex snap-x snap-mandatory divide-x divide-hairline overflow-x-auto md:grid md:grid-cols-2 md:overflow-visible lg:grid-cols-4">
+        {/* На телефон беше хоризонтален скрол с карти по 78% ширина: виждаше
+            се едно обещание и по едно голо иконче отляво и отдясно, откъснато
+            от текста си. Изглеждаше счупено, а и никой не се сещаше да плъзне.
+            Сега е решетка — четирите обещания се виждат наведнъж, нищо не е
+            отрязано и няма скрито съдържание. */}
+        <ul className="grid grid-cols-2 divide-x divide-y divide-hairline md:grid-cols-2 md:divide-y-0 lg:grid-cols-4">
           {USPS.map((usp) => {
             const body = (
               <>
-                <span className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-brand/10 text-brand-bright ring-1 ring-brand/25 transition-all duration-200 group-hover:bg-brand/20 group-hover:ring-brand/50">
+                <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-brand/10 sm:size-11 text-brand-bright ring-1 ring-brand/25 transition-all duration-200 group-hover:bg-brand/20 group-hover:ring-brand/50">
                   <svg
                     viewBox="0 0 24 24"
                     fill="none"
@@ -112,10 +117,10 @@ export function UspBar({className = ''}: {className?: string}) {
                   </svg>
                 </span>
                 <span className="min-w-0">
-                  <span className="block text-[0.9rem] font-semibold leading-tight text-white">
+                  <span className="block text-[0.8rem] font-semibold leading-tight text-white sm:text-[0.9rem]">
                     {usp.title}
                   </span>
-                  <span className="mt-0.5 block text-[0.78rem] leading-tight text-gray-400">
+                  <span className="mt-0.5 block text-[0.7rem] leading-tight text-gray-400 sm:text-[0.78rem]">
                     {usp.subtitle}
                   </span>
                 </span>
@@ -125,18 +130,18 @@ export function UspBar({className = ''}: {className?: string}) {
             return (
               <li
                 key={usp.title}
-                className="min-w-[78%] shrink-0 snap-start sm:min-w-[46%] md:min-w-0"
+                className="min-w-0"
               >
                 {usp.url ? (
                   <Link
                     to={usp.url}
-                    className="group flex h-full items-center gap-3.5 px-5 py-4 transition-colors hover:bg-white/[0.03] hover:no-underline xl:px-8"
+                    className="group flex h-full items-center gap-2.5 px-3.5 py-3.5 transition-colors hover:bg-white/[0.03] hover:no-underline sm:gap-3.5 sm:px-5 sm:py-4 xl:px-8"
                     prefetch="intent"
                   >
                     {body}
                   </Link>
                 ) : (
-                  <div className="flex h-full items-center gap-3.5 px-5 py-4 xl:px-8">
+                  <div className="flex h-full items-center gap-2.5 px-3.5 py-3.5 sm:gap-3.5 sm:px-5 sm:py-4 xl:px-8">
                     {body}
                   </div>
                 )}

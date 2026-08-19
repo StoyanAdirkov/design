@@ -42,10 +42,15 @@ const HERO_SLIDES: HeroSlide[] = [
     src: 'https://cdncloudcart.com/13688/files/image/maxxmart_kotsyfunky.jpg',
     alt: 'maxxmart Клубна карта — вземи си отстъпките',
     url: '/pages/promocards',
+    // Заглавията са за лентата под банера на телефон — четат се от самото
+    // изображение, не са съчинени.
+    title: 'Клубна карта maxxmart',
+    cta: 'Вземи я',
   },
   {
     src: 'https://cdncloudcart.com/13688/files/image/website-banner-nexe-autumn-2026.png',
     alt: 'NEXE есен 2026',
+    title: 'NEXE — керемиди с 40 години гаранция',
   },
   {
     // Трети банер, сглобен от нас: рамка 1920x640, същото съотношение 3:1
@@ -54,6 +59,7 @@ const HERO_SLIDES: HeroSlide[] = [
     src: '/hero/kosachka-oferta.jpg',
     alt: 'Сезонна оферта: косачка RAIDER RD-LM18 за 76,59 €',
     url: '/products/kosachka-raider-rd-lm18',
+    title: 'Косачка RAIDER RD-LM18 — 76,59 €',
   },
 ];
 

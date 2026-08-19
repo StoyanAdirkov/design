@@ -6,6 +6,10 @@ export interface HeroSlide {
   src: string;
   alt: string;
   url?: string;
+  /** Кратко заглавие за лентата под банера на телефон. */
+  title?: string;
+  /** Надпис на бутона там. По подразбиране „Виж офертата“. */
+  cta?: string;
 }
 
 /**
@@ -17,10 +21,21 @@ export interface HeroSlide {
  * по-широкия банер: така по хоризонтала не се реже нищо и текстът в
  * банерите остава цял. По-тесният губи само по малко горе и долу.
  *
- * Същата рамка важи и на телефон. Изкушението е там да се сложи по-висока
- * рамка (4:3), но тя реже ~60% от ширината и текстът изчезва. Правилното
- * решение е клиентът да даде отделни вертикални банери за мобилни —
- * дотогава 3:1 е честният компромис.
+ * НА ТЕЛЕФОН
+ * При 390px широчина 3:1 дава лента от 130px — банерът се вижда цял, но
+ * седи като тънка ивица и текстът в него е нечетим.
+ *
+ * Проверих кропването: при 2:1 от „КЛУБНА КАРТА“ остава „КЛУБНА“, от
+ * „40 ГОДИНИ ГАРАНЦИЯ“ — половината, а от нашия банер изчезва началото на
+ * всеки ред. Тези банери носят съдържание от край до край, така че всяко
+ * подрязване ги чупи.
+ *
+ * Затова на телефон банерът остава ЦЯЛ, а под него застава лента с
+ * заглавието и бутона. Героят става ~230px вместо 130px, офертата се чете
+ * с истински шрифт и се натиска с палец, без от изображението да е отрязан
+ * и пиксел. На desktop лентата я няма — там банерът се чете сам.
+ *
+ * Истинското решение остава клиентът да даде вертикални банери за мобилни.
  */
 const AUTOPLAY_MS = 6000;
 
@@ -46,6 +61,8 @@ export function HeroSlider({slides, className = ''}: {slides: HeroSlide[]; class
   }, [paused, count]);
 
   if (!count) return null;
+
+  const active = slides[index];
 
   return (
     <section
@@ -89,6 +106,23 @@ export function HeroSlider({slides, className = ''}: {slides: HeroSlide[]; class
         {/* лек тъмен ръб долу, за да седят точките върху всяка снимка */}
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/45 to-transparent" />
       </div>
+
+      {/* Лентата под банера — само на телефон. Виж бележката най-горе. */}
+      {active?.title ? (
+        <div className="flex items-center justify-between gap-3 bg-ink px-4 py-3 md:hidden">
+          <span className="min-w-0 flex-1 text-[0.95rem] font-bold leading-tight text-white">
+            {active.title}
+          </span>
+          {active.url ? (
+            <Link
+              to={active.url}
+              className="shrink-0 rounded-lg bg-brand px-3.5 py-2 text-[0.78rem] font-bold text-white hover:bg-brand-dark hover:no-underline"
+            >
+              {active.cta ?? 'Виж офертата'}
+            </Link>
+          ) : null}
+        </div>
+      ) : null}
 
       {count > 1 ? (
         <>
