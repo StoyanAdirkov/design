@@ -97,3 +97,123 @@ export function Pagination<T>({
     </>
   );
 }
+
+/**
+ * Номерирана лента със страници.
+ *
+ * „Зареди още“ работи, докато страницата е 12 продукта. При 32 на страница
+ * и 1251 продукта в Строителство това са 40 натискания, за да стигнеш до
+ * края, и никакъв начин да се върнеш на страница 12 или да я споделиш.
+ * Затова тук има истински номера — всеки с собствен URL, който търсачките
+ * могат да обходят, а човек може да сподели.
+ *
+ * Показваме първата, последната, текущата и по една съседна, а останалите
+ * свиваме в многоточие. Така лентата е с постоянна ширина независимо дали
+ * страниците са 3 или 40.
+ */
+export function PageNav({
+  currentPage,
+  totalCount,
+  pageSize,
+  className = '',
+}: {
+  currentPage: number;
+  totalCount?: number | null;
+  pageSize: number;
+  className?: string;
+}) {
+  const [searchParams] = useSearchParams();
+  const navigation = useNavigation();
+  const isLoading = navigation.state === 'loading';
+
+  const totalPages = totalCount ? Math.ceil(totalCount / pageSize) : 0;
+  if (!totalPages || totalPages < 2) return null;
+
+  const hrefFor = (page: number) => {
+    const params = new URLSearchParams(searchParams);
+    params.delete('cursor');
+    params.delete('direction');
+    if (page <= 1) params.delete('page');
+    else params.set('page', String(page));
+    const qs = params.toString();
+    return qs ? `?${qs}` : '?';
+  };
+
+  // Първа, последна, текущата и по една съседна; останалото — многоточие.
+  const pages: Array<number | 'gap'> = [];
+  for (let p = 1; p <= totalPages; p++) {
+    const keep = p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1;
+    if (keep) pages.push(p);
+    else if (pages[pages.length - 1] !== 'gap') pages.push('gap');
+  }
+
+  const base =
+    'flex h-10 min-w-10 items-center justify-center rounded-lg border px-3 text-[0.85rem] font-medium transition-[background,border-color,color] duration-150 no-underline hover:no-underline';
+
+  return (
+    <nav
+      aria-label="Страници"
+      className={`flex flex-wrap items-center justify-center gap-1.5 ${className}`}
+    >
+      {currentPage > 1 ? (
+        <Link
+          to={hrefFor(currentPage - 1)}
+          preventScrollReset
+          prefetch="intent"
+          rel="prev"
+          aria-label="Предишна страница"
+          className={`${base} border-gray-200 bg-white text-gray-600 hover:border-brand hover:text-brand-dark`}
+        >
+          ← Назад
+        </Link>
+      ) : (
+        <span className={`${base} cursor-not-allowed border-gray-100 bg-white text-gray-300`}>
+          ← Назад
+        </span>
+      )}
+
+      {pages.map((p, i) =>
+        p === 'gap' ? (
+          <span key={`gap-${i}`} className="px-1 text-gray-400 select-none">
+            …
+          </span>
+        ) : p === currentPage ? (
+          <span
+            key={p}
+            aria-current="page"
+            className={`${base} border-brand bg-brand font-semibold text-white`}
+          >
+            {p}
+          </span>
+        ) : (
+          <Link
+            key={p}
+            to={hrefFor(p)}
+            preventScrollReset
+            prefetch="intent"
+            className={`${base} border-gray-200 bg-white text-gray-600 hover:border-brand hover:text-brand-dark`}
+          >
+            {p}
+          </Link>
+        ),
+      )}
+
+      {currentPage < totalPages ? (
+        <Link
+          to={hrefFor(currentPage + 1)}
+          preventScrollReset
+          prefetch="intent"
+          rel="next"
+          aria-label="Следваща страница"
+          className={`${base} border-gray-200 bg-white text-gray-600 hover:border-brand hover:text-brand-dark`}
+        >
+          {isLoading ? 'Зареждане…' : 'Напред →'}
+        </Link>
+      ) : (
+        <span className={`${base} cursor-not-allowed border-gray-100 bg-white text-gray-300`}>
+          Напред →
+        </span>
+      )}
+    </nav>
+  );
+}
