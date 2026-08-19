@@ -1,12 +1,12 @@
 import {Link} from 'react-router';
 import type {Product} from '@cloudcart/nitrogen';
 import {Image} from '@cloudcart/nitrogen-react';
-import {PriceDual, formatEur, formatBgn} from './PriceDual';
+import {PriceDual, formatEur} from './PriceDual';
 import {StarRating} from './StarRating';
 import {WishlistButton} from './WishlistButton';
 import {AddToCartButton} from './AddToCartButton';
 import {AddByHandleButton} from './AddByHandleButton';
-import {getUnitPrice, formatUnitPrice} from '~/lib/unit-price';
+import {getUnitPrice, formatUnitPrice, formatPackSize} from '~/lib/unit-price';
 
 /**
  * Продуктова карта.
@@ -194,18 +194,12 @@ export function ProductCard({
               в преходния период към еврото важи за всяка показана цена. */}
           {showDiscount ? (
             <span className="mb-0.5 block text-[0.78rem] font-medium text-gray-400 line-through">
-              {formatEur(oldPrice, currencyCode)}{' '}
-              <span className="text-[0.72rem]">{formatBgn(oldPrice, currencyCode)}</span>
+              {formatEur(oldPrice, currencyCode)}
             </span>
           ) : null}
           {showDiscount ? (
-            <span className="flex flex-wrap items-baseline gap-x-2">
-              <span className="text-[1.05rem] font-bold tracking-tight text-red-600">
-                {formatEur(price, currencyCode)}
-              </span>
-              <span className="text-[0.76rem] text-gray-500">
-                {formatBgn(price, currencyCode)}
-              </span>
+            <span className="text-[1.05rem] font-bold tracking-tight text-red-600">
+              {formatEur(price, currencyCode)}
             </span>
           ) : (
             <PriceDual data={product.priceRange.minVariantPrice} size="sm" />
@@ -215,7 +209,7 @@ export function ProductCard({
             <span className="mt-0.5 block text-[0.74rem] text-gray-500">
               {formatUnitPrice(unit, product.priceRange?.minVariantPrice?.currencyCode)}
               {' · '}
-              {unit.kg % 1 === 0 ? unit.kg : unit.kg.toFixed(1)} кг
+              {formatPackSize(unit)}
             </span>
           ) : null}
 

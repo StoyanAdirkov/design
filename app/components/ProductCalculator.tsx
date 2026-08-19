@@ -1,7 +1,7 @@
 import {useState, useMemo} from 'react';
 import {CalculatorIcon} from '@heroicons/react/24/outline';
 import type {ConsumptionRate} from '~/lib/consumption';
-import {formatEur, formatBgn} from './PriceDual';
+import {formatEur} from './PriceDual';
 
 /**
  * Калкулатор: колко продукт трябва за дадена площ.
@@ -143,8 +143,8 @@ export function ProductCalculator({rates, packageKg, price, currency}: Props) {
               </dd>
               <dd className="text-[0.76rem] text-gray-500">
                 {result.costMin === result.costMax
-                  ? formatBgn(result.costMin, currency)
-                  : `${formatBgn(result.costMin, currency)} – ${formatBgn(result.costMax, currency)}`}
+                  ? formatEur(result.costMin, currency)
+                  : `${formatEur(result.costMin, currency)} – ${formatEur(result.costMax, currency)}`}
               </dd>
             </div>
           </dl>

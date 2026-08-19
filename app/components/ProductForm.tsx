@@ -2,7 +2,7 @@ import {useState} from 'react';
 import {Link, useNavigate} from 'react-router';
 import {VariantSelector} from '@cloudcart/nitrogen-react';
 import {PriceDual, PriceDualOld, PriceCloudCart, formatEur} from './PriceDual';
-import {getUnitPrice, formatUnitPrice} from '~/lib/unit-price';
+import {getUnitPrice, formatUnitPrice, formatPackSize} from '~/lib/unit-price';
 import {AddToCartButton} from './AddToCartButton';
 import {OptionSwatch} from './OptionSwatch';
 import {QuantityPicker} from './QuantityPicker';
@@ -29,11 +29,13 @@ export function ProductForm({product, selectedVariant}: ProductFormProps) {
 
   // Разходна норма от описанието на производителя — виж lib/consumption.ts
   const rates = parseConsumption(product.descriptionHtml);
-  const packageKg = unit?.kg ?? 0;
+  // Калкулаторът смята в килограми. При разфасовка в литри го оставяме
+  // празен, вместо да делим килограми на литри.
+  const packageKg = unit && unit.unit === 'кг' ? unit.size : 0;
 
   return (
     <div>
-      {/* Цената както на живия сайт: „9,83 € / 19,23 лв.“ в зелено */}
+      {/* Цената в бранд зелено. Само евро — виж бележката в PriceDual.tsx */}
       <div className="mt-4" aria-live="polite">
         {variant ? (
           <PriceCloudCart data={variant.price} />
@@ -68,7 +70,7 @@ export function ProductForm({product, selectedVariant}: ProductFormProps) {
               {formatUnitPrice(unit, product.priceRange?.minVariantPrice?.currencyCode)}
             </span>
             <span className="text-gray-500">
-              разфасовка {unit.kg % 1 === 0 ? unit.kg : unit.kg.toFixed(1)} кг
+              разфасовка {formatPackSize(unit)}
             </span>
           </p>
         ) : null}

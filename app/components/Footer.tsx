@@ -11,7 +11,6 @@ import {
 import {NewsletterForm} from './NewsletterForm';
 import {STORES, STORE_HOURS} from '~/lib/stores';
 import {SOCIAL_PROFILE} from '~/lib/social';
-import {BGN_PER_EUR} from './PriceDual';
 
 /**
  * Футър в езика на хедъра — тъмна основа, техно-мрежа, зелени акценти.
@@ -205,7 +204,7 @@ export function Footer({shop}: FooterProps) {
       <div className="relative border-t border-hairline">
         <div className="mx-auto flex max-w-[1400px] flex-col gap-2 px-5 py-5 text-[0.76rem] text-gray-500 md:flex-row md:items-center md:justify-between xl:px-8">
           <p>
-            Всички посочени цени са с включено ДДС. 1 EUR = {BGN_PER_EUR} BGN.
+            Всички посочени цени са в евро с включено ДДС.
           </p>
           <p>© {year} {shop?.name || 'maxxmart'}. Всички права запазени.</p>
         </div>
