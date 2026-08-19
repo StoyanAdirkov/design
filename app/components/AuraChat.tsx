@@ -20,17 +20,30 @@ import {useEffect} from 'react';
  * www.maxxmart.eu няма нито един ред „aura“. Приложението е включено,
  * но настройките му явно не са довършени — затова и там мълчи.
  *
- * КАКВО ТРЯБВА, ЗА ДА ТРЪГНЕ ТУК
- * Трите стойности отдолу, от админа → Приложения → Aura Chat →
- * Настройки. Щом се попълнят, компонентът повтаря точно това, което
- * прави платформата, и чатът се появява.
+ * КАК Е ЗАКАЧЕН ТУК
+ * Компонентът прави ръчно това, което класическата тема прави сама:
+ * слага loader-а в <head> с data-api и data-site. Стойностите отдолу са
+ * същите, с които работи и техният магазин.
  */
 
-/** От apps/aura_chat/settings в админа. Празно = компонентът мълчи. */
+/**
+ * Конфигурацията, с която работи и класическият им магазин.
+ *
+ * Не я въведох на ръка и не я гадах: прочетох я от `window.CCAppsConfig`
+ * на www.maxxmart.eu. Оказа се, че там я има — първата ми проверка беше
+ * само по изходния HTML на началната страница, а обектът се сглобява от
+ * JS, затова излезе празна. Урок: за скриптови приложения се гледа
+ * изпълненият DOM, не сорсът.
+ *
+ * Стойностите са същите, които платформата подава на своя loader —
+ * `data-api` и `data-site` в мрежата съвпадат едно към едно.
+ */
 export const AURA = {
-  loaderUrl: '',
-  apiUrl: '',
-  siteId: '',
+  loaderUrl: 'https://aurachatwidget.cloudcart.com/loader.js',
+  apiUrl: 'https://chat.cloudcart.com',
+  siteId: '13688',
+  /** Кеш-ключ; при промяна в приложението се вдига от админа. */
+  version: '1787148922',
 };
 
 export function AuraChat() {
@@ -46,7 +59,7 @@ export function AuraChat() {
     el.defer = true;
     el.dataset.auraChat = 'true';
     const sep = AURA.loaderUrl.includes('?') ? '&' : '?';
-    el.src = `${AURA.loaderUrl}${sep}v=1`;
+    el.src = `${AURA.loaderUrl}${sep}v=${AURA.version}`;
     if (AURA.apiUrl) el.dataset.api = AURA.apiUrl;
     if (AURA.siteId) el.dataset.site = AURA.siteId;
     document.head.appendChild(el);
