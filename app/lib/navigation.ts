@@ -17,6 +17,18 @@ export interface NavCategory extends NavNode {
   label: string;
   /** ключ на иконата в CategoryIcon */
   icon: string;
+  /**
+   * Снимка за панела вдясно в мегаменюто.
+   *
+   * Само 12 на брой — по една на главна категория. Миниатюри до всяка
+   * от 67-те подкатегории биха искали 67 снимки и биха удължили и без
+   * това високото меню; панелът вдясно ползва хоризонталното място,
+   * което при повечето категории стои празно.
+   *
+   * Лиценз: Unsplash License, свободна за търговска употреба. Хостват се
+   * локално в public/nav/, а не се дърпат от чужд сървър.
+   */
+  image?: string;
 }
 
 export const CATEGORY_NAV: NavCategory[] = [
@@ -24,6 +36,7 @@ export const CATEGORY_NAV: NavCategory[] = [
     title: 'Строителство',
     label: 'Строителство',
     icon: 'building',
+    image: '/nav/stroitelstvo.jpg',
     url: '/collections/stroitelstvo',
     children: [
       {
@@ -128,6 +141,7 @@ export const CATEGORY_NAV: NavCategory[] = [
     title: 'Бои, лакове и мазилки',
     label: 'Бои и мазилки',
     icon: 'paint',
+    image: '/nav/boi.jpg',
     url: '/collections/boi-lakove-i-mazilki',
     children: [
       {
@@ -200,6 +214,7 @@ export const CATEGORY_NAV: NavCategory[] = [
     title: 'Инструменти',
     label: 'Инструменти',
     icon: 'tool',
+    image: '/nav/instrumenti.jpg',
     url: '/collections/instrumenti-krepejni-elementi-pomoshtni-sredstva',
     children: [
       {
@@ -283,6 +298,7 @@ export const CATEGORY_NAV: NavCategory[] = [
     title: 'ВиК',
     label: 'ВиК',
     icon: 'pipe',
+    image: '/nav/vik.jpg',
     url: '/collections/ovk-vik',
     children: [
       {
@@ -342,6 +358,7 @@ export const CATEGORY_NAV: NavCategory[] = [
     title: 'Отопление и ел.уреди',
     label: 'Отопление',
     icon: 'flame',
+    image: '/nav/otoplenie.jpg',
     url: '/collections/otoplenie',
     children: [
       {
@@ -368,6 +385,7 @@ export const CATEGORY_NAV: NavCategory[] = [
     title: 'Осветление и ел.материали',
     label: 'Осветление',
     icon: 'bulb',
+    image: '/nav/osvetlenie.jpg',
     url: '/collections/elektromateriali-i-osvetlenie',
     children: [
       {
@@ -446,6 +464,7 @@ export const CATEGORY_NAV: NavCategory[] = [
     title: 'Баня',
     label: 'Баня',
     icon: 'bath',
+    image: '/nav/banya.jpg',
     url: '/collections/banya-i-kuhnya',
     children: [
       {
@@ -496,6 +515,7 @@ export const CATEGORY_NAV: NavCategory[] = [
     title: 'Подови и стенни покрития',
     label: 'Подови покрития',
     icon: 'floor',
+    image: '/nav/podovi.jpg',
     url: '/collections/podovi-pokritiya',
     children: [
       {
@@ -542,6 +562,7 @@ export const CATEGORY_NAV: NavCategory[] = [
     title: 'Работно облекло',
     label: 'Работно облекло',
     icon: 'helmet',
+    image: '/nav/obleklo.jpg',
     url: '/collections/pomoshtni-rabotni-sredstva',
     children: [
       {
@@ -574,6 +595,7 @@ export const CATEGORY_NAV: NavCategory[] = [
     title: 'Авто',
     label: 'Авто',
     icon: 'car',
+    image: '/nav/avto.jpg',
     url: '/collections/avto',
     children: [
       {
@@ -622,6 +644,7 @@ export const CATEGORY_NAV: NavCategory[] = [
     title: 'Градина',
     label: 'Градина',
     icon: 'garden',
+    image: '/nav/gradina.jpg',
     url: '/collections/gradina',
     children: [
       {
@@ -711,6 +734,7 @@ export const CATEGORY_NAV: NavCategory[] = [
     title: 'За Дома',
     label: 'За дома',
     icon: 'home',
+    image: '/nav/za-doma.jpg',
     url: '/collections/interior-i-obzavejdane',
     children: [
       {

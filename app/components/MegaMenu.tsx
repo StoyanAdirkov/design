@@ -44,8 +44,11 @@ export function MegaMenu({category}: {category: NavCategory}) {
           </Link>
         </div>
 
-        {/* групи */}
-        <div className="scrollbar-thin-brand max-h-[62vh] overflow-y-auto md:columns-3 md:gap-8 lg:columns-4 xl:columns-5 2xl:columns-6">
+        {/* Колоните отляво, снимката отдясно.
+            Панелът се появява чак от xl — под тази ширина мястото
+            наистина не стига и колоните са по-важни от картинката. */}
+        <div className="flex gap-8">
+          <div className="scrollbar-thin-brand max-h-[62vh] flex-1 overflow-y-auto md:columns-3 md:gap-8 lg:columns-4 xl:columns-4 2xl:columns-5">
           {subs.map((sub) => (
             <div key={sub.url} className="mb-6 break-inside-avoid">
               <Link
@@ -83,6 +86,35 @@ export function MegaMenu({category}: {category: NavCategory}) {
               ) : null}
             </div>
           ))}
+          </div>
+
+          {category.image ? (
+            <Link
+              to={category.url}
+              prefetch="intent"
+              className="group hidden w-[280px] shrink-0 overflow-hidden rounded-xl border border-hairline bg-ink-3 hover:no-underline xl:block 2xl:w-[320px]"
+            >
+              <span className="relative block aspect-[4/3] overflow-hidden">
+                <img
+                  src={category.image}
+                  alt=""
+                  aria-hidden="true"
+                  loading="lazy"
+                  className="size-full rounded-none object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+                <span className="absolute inset-0 bg-gradient-to-t from-ink via-ink/25 to-transparent" />
+              </span>
+              <span className="block p-4">
+                <span className="block text-[0.92rem] font-bold text-white">
+                  {category.title}
+                </span>
+                <span className="mt-1 flex items-center gap-1.5 text-[0.8rem] font-semibold text-brand-bright">
+                  Разгледай всичко
+                  <span className="transition-transform group-hover:translate-x-1">→</span>
+                </span>
+              </span>
+            </Link>
+          ) : null}
         </div>
       </div>
     </div>
