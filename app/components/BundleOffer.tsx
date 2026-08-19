@@ -97,15 +97,15 @@ export function BundleOffer({products}: {products: Product[]}) {
           <p className="w-full text-[0.88rem] text-gray-400">{BUNDLE_SUBTITLE}</p>
         </div>
 
-        <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start lg:gap-6">
+        <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-stretch lg:gap-6">
           {/* Продуктите се разпъват на цялата лява колона (flex-1 на всяка
               карта), затова между тях и цената вече не зее празно. */}
           <ul className="flex flex-col items-stretch gap-3 sm:flex-row">
             {picks.map(({product, variant}, i) => (
-              <li key={product.id} className="flex flex-1 items-center gap-3">
+              <li key={product.id} className="flex flex-1 items-stretch gap-3">
                 {i > 0 ? (
                   <PlusIcon
-                    className="size-5 shrink-0 text-brand-bright"
+                    className="size-5 shrink-0 self-center text-brand-bright"
                     strokeWidth={2.6}
                     aria-hidden="true"
                   />
@@ -113,7 +113,7 @@ export function BundleOffer({products}: {products: Product[]}) {
                 <Link
                   to={`/products/${product.handle}`}
                   prefetch="intent"
-                  className="group flex w-full flex-col rounded-xl border border-hairline bg-ink-2/80 p-3.5 transition-all duration-200 hover:-translate-y-1 hover:border-brand/60 hover:bg-ink-2 hover:shadow-[0_14px_30px_-16px_rgba(60,180,74,0.7)] hover:no-underline"
+                  className="group flex h-full w-full flex-col rounded-xl border border-hairline bg-ink-2/80 p-3.5 transition-all duration-200 hover:-translate-y-1 hover:border-brand/60 hover:bg-ink-2 hover:shadow-[0_14px_30px_-16px_rgba(60,180,74,0.7)] hover:no-underline"
                 >
                   <span className="mb-2.5 block overflow-hidden rounded-lg bg-white">
                     {product.featuredImage?.url ? (
@@ -129,12 +129,13 @@ export function BundleOffer({products}: {products: Product[]}) {
                   <span className="line-clamp-2 min-h-[2.5em] text-[0.82rem] leading-snug text-gray-200">
                     {product.title}
                   </span>
-                  {variant?.title ? (
-                    <span className="mt-1.5 block text-[0.74rem] text-brand-bright">
-                      {variant.title}
-                    </span>
-                  ) : null}
-                  <span className="mt-1.5 text-[0.98rem] font-bold text-white">
+                  {/* редът се рисува винаги, за да са картите с еднаква
+                      височина — валякът няма разновидност, боята и
+                      стълбата имат */}
+                  <span className="mt-1.5 block min-h-[1.15em] text-[0.74rem] text-brand-bright">
+                    {variant?.title ?? ''}
+                  </span>
+                  <span className="mt-auto pt-1.5 text-[0.98rem] font-bold text-white">
                     {money(
                       Number(
                         variant?.price?.amount ??
@@ -167,9 +168,8 @@ export function BundleOffer({products}: {products: Product[]}) {
               Спестяваш {money(saved)}
             </span>
 
-
             {canAddAll ? (
-              <fetcher.Form method="post" action="/cart" className="mt-4">
+              <fetcher.Form method="post" action="/cart" className="mt-auto pt-4">
                 <input type="hidden" name="action" value="ADD_BUNDLE" />
                 {variantIds.map((id) => (
                   <input key={id} type="hidden" name="merchandiseId" value={id} />
