@@ -13,6 +13,8 @@ import {FilterIcon, filterIconFor} from './FilterIcon';
 interface ProductFiltersProps {
   filters?: Filter[];
   totalCount?: number | null;
+  /** Блок, който сяда най-отгоре в колоната — при нас подкатегориите. */
+  children?: React.ReactNode;
 }
 
 /** „1 продукт“ / „1251 продукта“ — числото се форматира с интервал за хилядите. */
@@ -57,7 +59,7 @@ function isUsefulGroup(values: FilterValue[], totalCount?: number | null): boole
   return coverage / totalCount >= 0.02;
 }
 
-export function ProductFilters({filters = [], totalCount}: ProductFiltersProps) {
+export function ProductFilters({filters = [], totalCount, children}: ProductFiltersProps) {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
@@ -196,6 +198,8 @@ export function ProductFilters({filters = [], totalCount}: ProductFiltersProps) 
         </div>
       )}
 
+      {children}
+
       {/* Динамични филтри от API-то */}
       {groups.map((group) => (
         <FilterGroup
@@ -233,21 +237,46 @@ export function ProductFilters({filters = [], totalCount}: ProductFiltersProps) 
 }
 
 /**
- * Заглавие на група с икона отляво.
+ * Сгъваема група филтри.
+ *
+ * Заглавието е бутон, не етикет: в Строителство колоната става висока
+ * колкото три екрана и без сгъване стигането до „Цена“ е скролване.
+ * Групата с активен избор винаги се отваря — иначе човек не вижда защо
+ * списъкът е стеснен.
  *
  * Иконата е в бранд зелено, а текстът остава сив: цветното петно води
  * окото надолу по колоната, без да се бие с активните отметки.
  */
-function GroupLabel({children}: {children: React.ReactNode}) {
-  const label = typeof children === 'string' ? children : '';
+function FilterSection({
+  label,
+  defaultOpen = true,
+  children,
+}: {
+  label: string;
+  defaultOpen?: boolean;
+  children: React.ReactNode;
+}) {
+  const [open, setOpen] = useState(defaultOpen);
   const icon = filterIconFor(label);
+
   return (
-    <label className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-gray-500">
-      {icon ? (
-        <FilterIcon name={icon} className="size-[1.05rem] shrink-0 text-brand" />
-      ) : null}
-      {children}
-    </label>
+    <div className="flex flex-col gap-1.5">
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        aria-expanded={open}
+        className="flex w-full cursor-pointer items-center gap-1.5 border-none bg-transparent p-0 text-left font-sans text-xs font-semibold uppercase tracking-wider text-gray-500 transition-colors hover:text-dark"
+      >
+        {icon ? (
+          <FilterIcon name={icon} className="size-[1.05rem] shrink-0 text-brand" />
+        ) : null}
+        <span className="flex-1">{label}</span>
+        <ChevronDownIcon
+          className={`size-4 shrink-0 text-gray-400 transition-transform duration-200 ${open ? '' : '-rotate-90'}`}
+        />
+      </button>
+      {open ? children : null}
+    </div>
   );
 }
 
@@ -306,8 +335,7 @@ function FilterListGroup({
   const visibleValues = expanded ? group.values : group.values.slice(0, VISIBLE_COUNT);
 
   return (
-    <div className="flex flex-col gap-1.5">
-      <GroupLabel>{group.label}</GroupLabel>
+    <FilterSection label={group.label}>
       <div className="flex flex-col gap-1">
         {visibleValues.map((v) => {
           const active = isFilterActive(searchParams, v.input);
@@ -354,7 +382,7 @@ function FilterListGroup({
           {expanded ? 'Покажи по-малко' : `Виж всички ${group.values.length}`}
         </button>
       )}
-    </div>
+    </FilterSection>
   );
 }
 
@@ -373,8 +401,7 @@ function FilterSwatchColorGroup({
   if (!values.length) return null;
 
   return (
-    <div className="flex flex-col gap-1.5">
-      <GroupLabel>{group.label}</GroupLabel>
+    <FilterSection label={group.label}>
       <div className="flex flex-wrap gap-1.5">
         {values.map((v) => (
           <button
@@ -388,7 +415,7 @@ function FilterSwatchColorGroup({
           />
         ))}
       </div>
-    </div>
+    </FilterSection>
   );
 }
 
@@ -402,8 +429,7 @@ function FilterSwatchImageGroup({
   onToggle: (input: string) => void;
 }) {
   return (
-    <div className="flex flex-col gap-1.5">
-      <GroupLabel>{group.label}</GroupLabel>
+    <FilterSection label={group.label}>
       <div className="flex flex-wrap gap-1.5">
         {group.values.map((v) => (
           <button
@@ -424,7 +450,7 @@ function FilterSwatchImageGroup({
           </button>
         ))}
       </div>
-    </div>
+    </FilterSection>
   );
 }
 
@@ -443,8 +469,7 @@ function FilterPriceRangeGroup({
   const max = group.source.maxValue?.value ?? 0;
 
   return (
-    <div className="flex flex-col gap-1.5">
-      <GroupLabel>{group.label}</GroupLabel>
+    <FilterSection label={group.label}>
       <div className="flex items-center gap-2">
         <input
           key={`min-${currentMinPrice}`}
@@ -476,7 +501,7 @@ function FilterPriceRangeGroup({
           max={max}
         />
       </div>
-    </div>
+    </FilterSection>
   );
 }
 
@@ -492,8 +517,7 @@ function FilterRangeGroup({
   const step = group.source.rangeStep ?? 1;
 
   return (
-    <div className="flex flex-col gap-1.5">
-      <GroupLabel>{group.label}</GroupLabel>
+    <FilterSection label={group.label}>
       <div className="flex items-center gap-2">
         <span className="min-w-8 shrink-0 text-center text-xs text-gray-500">{min}</span>
         <input
@@ -507,7 +531,7 @@ function FilterRangeGroup({
         />
         <span className="min-w-8 shrink-0 text-center text-xs text-gray-500">{max}</span>
       </div>
-    </div>
+    </FilterSection>
   );
 }
 

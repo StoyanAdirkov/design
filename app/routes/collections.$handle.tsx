@@ -1,10 +1,14 @@
-import {useLoaderData, data, Link} from 'react-router';
+import {useState, useEffect} from 'react';
+import {useLoaderData, data, Link, useSearchParams} from 'react-router';
 import type {Route} from './+types/collections.$handle';
 import {getContext} from '~/lib/context';
 import {getSeoMeta} from '@cloudcart/nitrogen';
 import {Image} from '@cloudcart/nitrogen-react';
 import {ProductCard} from '~/components/ProductCard';
 import {ProductFilters} from '~/components/ProductFilters';
+import {SubcategoryFilter} from '~/components/SubcategoryFilter';
+import {FilterIcon} from '~/components/FilterIcon';
+import {useHeaderOffset} from '~/lib/use-header-offset';
 import {Breadcrumbs} from '~/components/Breadcrumbs';
 import {Pagination, PageNav} from '~/components/Pagination';
 import {CategoryCopy} from '~/components/CategoryCopy';
@@ -195,8 +199,48 @@ export async function loader({params, context, request}: Route.LoaderArgs) {
 export default function CollectionPage() {
   const {collection, products, page: currentPage, projectKey, projectIntro} =
     useLoaderData<typeof loader>();
+  const [searchParams] = useSearchParams();
   const col = collection as any;
   const projects = projectsForCollection(col.handle);
+
+  // Височината на залепения хедър → CSS променлива, за да знае
+  // колоната откъде да започне да се лепи. Виж lib/use-header-offset.ts
+  useHeaderOffset();
+
+  // Показани ли са филтрите.
+  //
+  // На desktop започват отворени; на телефон — затворени, защото там
+  // колоната беше под продуктите и на практика не съществуваше.
+  // Изборът се помни, но се чете чак след монтиране: на сървъра няма
+  // localStorage и разминаването би счупило хидратацията.
+  const [showFilters, setShowFilters] = useState(true);
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('maxxmart:filters');
+      if (saved !== null) setShowFilters(saved === '1');
+      else if (window.matchMedia('(max-width: 767px)').matches) setShowFilters(false);
+    } catch {
+      // блокирано хранилище — оставаме на подразбирането
+    }
+  }, []);
+
+  const toggleFilters = () => {
+    setShowFilters((v) => {
+      try {
+        localStorage.setItem('maxxmart:filters', v ? '0' : '1');
+      } catch {
+        // няма как да го запомним, но превключването пак работи
+      }
+      return !v;
+    });
+  };
+
+  // Броят активни филтри стои на бутона, за да личи и когато колоната е
+  // скрита. Чете се от URL-а, не от window — иначе на сървъра би било
+  // друго число и хидратацията щеше да се скара.
+  const activeFilterCount = Array.from(searchParams.entries()).filter(
+    ([k]) => !['sort', 'page', 'cursor', 'direction', 'project', 'v'].includes(k),
+  ).length;
   const totalCount = (products as any).totalCount as number | null | undefined;
 
   const breadcrumbItems = (col.breadcrumb ?? [])
@@ -276,10 +320,56 @@ export default function CollectionPage() {
         />
       )}
 
-      <div className="grid gap-8 md:grid-cols-[220px_1fr] md:gap-10">
-        <aside className="order-2 md:order-1">
-          <ProductFilters filters={(products as any).filters} totalCount={totalCount} />
-        </aside>
+      {/* Лента с превключвателя. Стои над решетката, за да е на едно
+          и също място и когато колоната е скрита. */}
+      <div className="mb-4 flex items-center gap-3">
+        <button
+          type="button"
+          onClick={toggleFilters}
+          aria-expanded={showFilters}
+          className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-gray-200 bg-white px-3.5 py-2 text-[0.82rem] font-semibold text-dark transition-colors duration-150 hover:border-brand hover:text-brand-dark"
+        >
+          <FilterIcon name="more" className="size-4 text-brand" />
+          {showFilters ? 'Скрий филтрите' : 'Филтри'}
+          {activeFilterCount > 0 ? (
+            <span className="ml-0.5 inline-flex size-[1.15rem] items-center justify-center rounded-full bg-brand text-[0.66rem] font-bold text-white">
+              {activeFilterCount}
+            </span>
+          ) : null}
+        </button>
+      </div>
+
+      <div
+        className={
+          showFilters
+            ? 'grid gap-8 md:grid-cols-[240px_minmax(0,1fr)] md:gap-10'
+            : 'grid gap-8'
+        }
+      >
+        {showFilters ? (
+          // Залепена колона: започва точно под хедъра и скролва сама,
+          // когато е по-висока от екрана. Без собствен скрол дългите
+          // списъци с марки просто изчезват под ръба.
+          <aside
+            className="order-2 md:order-1 md:sticky md:self-start md:overflow-y-auto md:overscroll-contain md:pr-1 md:[scrollbar-width:thin]"
+            style={{
+              top: 'calc(var(--mm-header, 160px) + 0.75rem)',
+              maxHeight: 'calc(100dvh - var(--mm-header, 160px) - 1.5rem)',
+            }}
+          >
+            <ProductFilters filters={(products as any).filters} totalCount={totalCount}>
+              <SubcategoryFilter
+                items={children}
+                parent={
+                  rootHandle !== col.handle && rootTitle
+                    ? {title: rootTitle, handle: rootHandle}
+                    : null
+                }
+                currentHandle={col.handle}
+              />
+            </ProductFilters>
+          </aside>
+        ) : null}
 
         <div className="order-1 md:order-2">
           <Pagination connection={products}>
@@ -292,7 +382,13 @@ export default function CollectionPage() {
                   </p>
                 )}
 
-                <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4">
+                {/* Скритите филтри освобождават 240px — на широк екран
+                    това стига за пета карта, вместо да разтягаме четири. */}
+                <div
+                  className={`grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4 ${
+                    showFilters ? '' : '2xl:grid-cols-5'
+                  }`}
+                >
                   {nodes.map((product: any) => (
                     <ProductCard key={product.id} product={product} />
                   ))}
