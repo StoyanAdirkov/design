@@ -18,6 +18,7 @@ import {BUNDLE_ITEMS} from '~/lib/bundle';
 import {SALE_PICKS, SALE_PERCENT, SALE_ENABLED, SALE_TITLE, SALE_SUBTITLE} from '~/lib/sale';
 import {ClubCard} from '~/components/ClubCard';
 import {ReviewsCarousel} from '~/components/ReviewsCarousel';
+import {BlogGrid} from '~/components/BlogGrid';
 import {REVIEWS_ENABLED} from '~/lib/reviews';
 
 export const meta: Route.MetaFunction = () =>
@@ -78,6 +79,35 @@ export async function loader({context, request}: Route.LoaderArgs) {
     ),
   ).then((items) => items.filter(Boolean));
 
+  // Статии от блоговете на магазина. Тегли се и от двата — „Новини“ и
+  // „Промоции“ — защото поотделно не винаги имат по 6 пресни.
+  const articles = Promise.all([
+    ctx.storefront.getArticles('novini', 6).catch(() => []),
+    ctx.storefront.getArticles('promocii', 6).catch(() => []),
+  ])
+    .then(([novini, promocii]) => {
+      const tagged = [
+        ...(novini as any[]).map((a) => ({...a, blogHandle: 'novini', blogTitle: 'Новини'})),
+        ...(promocii as any[]).map((a) => ({...a, blogHandle: 'promocii', blogTitle: 'Промоции'})),
+      ];
+      // редуваме двата източника, за да не излязат 6 промоции подред
+      const out: any[] = [];
+      const a = tagged.filter((x) => x.blogHandle === 'novini');
+      const b = tagged.filter((x) => x.blogHandle === 'promocii');
+      for (let i = 0; i < 5; i++) {
+        if (a[i]) out.push(a[i]);
+        if (b[i]) out.push(b[i]);
+      }
+      // ПЕТ, не шест: водещата карта заема 2×2 в решетка от 4 колони,
+      // тоест 4 клетки. Още 4 обикновени я допълват точно до 2 реда.
+      // При шест статии шестата увисва сама на трети ред.
+      return out.slice(0, 5);
+    })
+    .catch((error: Error) => {
+      console.error('Статиите не се заредиха', error);
+      return [];
+    });
+
   const saleProducts = SALE_ENABLED
     ? Promise.all(
         SALE_PICKS.map((handle) =>
@@ -101,6 +131,7 @@ export async function loader({context, request}: Route.LoaderArgs) {
     summerProducts,
     bundleProducts,
     saleProducts,
+    articles,
   };
 }
 
@@ -111,6 +142,7 @@ export default function Homepage() {
     summerProducts,
     bundleProducts,
     saleProducts,
+    articles,
   } = useLoaderData<typeof loader>();
 
   return (
@@ -180,6 +212,17 @@ export default function Homepage() {
       {REVIEWS_ENABLED ? (
         <ReviewsCarousel className="-mx-4 sm:-mx-5 xl:-mx-8" />
       ) : null}
+
+      <Suspense fallback={<div className="mt-0 h-[520px] animate-pulse bg-ink-2" />}>
+        <Await resolve={articles}>
+          {(items) => (
+            <BlogGrid
+              articles={items as any}
+              className="-mx-4 sm:-mx-5 xl:-mx-8"
+            />
+          )}
+        </Await>
+      </Suspense>
 
       <section className="mt-12">
         <h2 className="text-2xl font-bold tracking-tight mb-5">Препоръчани продукти</h2>

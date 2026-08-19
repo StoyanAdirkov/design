@@ -195,13 +195,15 @@ export function BundleOffer({products}: {products: Product[]}) {
             )}
 
             <p className="mt-2.5 text-center text-[0.72rem] text-gray-600">
-              Отстъпката се прилага в количката ·{' '}
+              {/* линкът е whitespace-nowrap, за да не се къса на „още“
+                  и „оферти“ — пренася се цял на нов ред */}
+              Отстъпката се прилага в количката{' '}
               <Link
                 to="/promo"
                 prefetch="intent"
-                className="font-semibold text-brand-bright hover:no-underline"
+                className="whitespace-nowrap font-semibold text-brand-bright hover:no-underline"
               >
-                още оферти →
+                · още оферти →
               </Link>
             </p>
           </div>
