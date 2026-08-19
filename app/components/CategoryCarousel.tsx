@@ -1,6 +1,4 @@
-import {useRef, useState, useEffect, useCallback} from 'react';
 import {Link} from 'react-router';
-import {ChevronLeftIcon, ChevronRightIcon, ArrowRightIcon} from '@heroicons/react/24/outline';
 import type {SeasonalCategory} from '~/lib/seasonal-categories';
 
 /**
@@ -26,30 +24,6 @@ export function CategoryCarousel({
   subtitle?: string;
   categories: SeasonalCategory[];
 }) {
-  const scroller = useRef<HTMLDivElement>(null);
-  const [atStart, setAtStart] = useState(true);
-  const [atEnd, setAtEnd] = useState(false);
-
-  const sync = useCallback(() => {
-    const el = scroller.current;
-    if (!el) return;
-    setAtStart(el.scrollLeft <= 12);
-    setAtEnd(el.scrollLeft + el.clientWidth >= el.scrollWidth - 12);
-  }, []);
-
-  useEffect(() => {
-    sync();
-    const onResize = () => sync();
-    window.addEventListener('resize', onResize);
-    return () => window.removeEventListener('resize', onResize);
-  }, [sync, categories.length]);
-
-  const page = (dir: -1 | 1) => {
-    const el = scroller.current;
-    if (!el) return;
-    el.scrollBy({left: dir * el.clientWidth, behavior: 'smooth'});
-  };
-
   if (!categories.length) return null;
 
   return (
@@ -63,23 +37,21 @@ export function CategoryCarousel({
             <p className="mt-1 text-[0.82rem] text-gray-500">{subtitle}</p>
           ) : null}
         </div>
-        <div className="flex items-center gap-2">
-          <ArrowButton dir="left" disabled={atStart} onClick={() => page(-1)} />
-          <ArrowButton dir="right" disabled={atEnd} onClick={() => page(1)} />
-        </div>
       </div>
 
-      <div
-        ref={scroller}
-        onScroll={sync}
-        className="scrollbar-none -mx-1 flex snap-x snap-mandatory gap-4 overflow-x-auto px-1 pb-2"
-      >
-        {categories.map((cat, i) => (
+      {/* Пистата се движи сама. Дублирана е, за да няма шев; копието е
+          aria-hidden. Плочките са с ФИКСИРАНА ширина — при процентна
+          дублираната писта не е точно 200% и шевът се вижда. */}
+      <div className="group/marquee relative overflow-hidden">
+      <div className="marquee marquee-categories flex w-max gap-4">
+        {[...categories, ...categories].map((cat, i) => (
           <Link
-            key={cat.url}
+            key={`${cat.url}-${i}`}
             to={cat.url}
             prefetch="intent"
-            className="group relative aspect-[4/5] w-[68%] shrink-0 snap-start overflow-hidden rounded-xl bg-ink ring-1 ring-hairline/60 hover:no-underline sm:aspect-[4/3] sm:w-[44%] lg:w-[30%] xl:w-[calc(25%-0.75rem)]"
+            aria-hidden={i >= categories.length || undefined}
+            tabIndex={i >= categories.length ? -1 : undefined}
+            className="group relative aspect-[4/3] w-[280px] shrink-0 overflow-hidden rounded-xl bg-ink ring-1 ring-hairline/60 hover:no-underline sm:w-[320px] lg:w-[360px]"
           >
             <img
               src={cat.image}
@@ -99,9 +71,8 @@ export function CategoryCarousel({
               <span className="mb-1.5 block text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-brand-bright">
                 {cat.kicker}
               </span>
-              <span className="flex items-center gap-2 text-[1.05rem] font-bold leading-tight text-white md:text-[1.15rem]">
+              <span className="block text-[1.05rem] font-bold leading-tight text-white md:text-[1.15rem]">
                 {cat.title}
-                <ArrowRightIcon className="size-4 -translate-x-1 opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100 motion-reduce:transition-none" />
               </span>
 
               {/* линията израства отляво надясно */}
@@ -110,29 +81,12 @@ export function CategoryCarousel({
           </Link>
         ))}
       </div>
+
+        {/* меко избледняване в двата края */}
+        <div className="pointer-events-none absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-white to-transparent" />
+        <div className="pointer-events-none absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-white to-transparent" />
+      </div>
     </section>
   );
 }
 
-function ArrowButton({
-  dir,
-  disabled,
-  onClick,
-}: {
-  dir: 'left' | 'right';
-  disabled: boolean;
-  onClick: () => void;
-}) {
-  const Icon = dir === 'left' ? ChevronLeftIcon : ChevronRightIcon;
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={disabled}
-      aria-label={dir === 'left' ? 'Назад' : 'Напред'}
-      className="flex size-9 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 transition-all hover:border-brand hover:bg-brand hover:text-white disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:border-gray-200 disabled:hover:bg-white disabled:hover:text-gray-600"
-    >
-      <Icon className="size-4" strokeWidth={2.2} />
-    </button>
-  );
-}

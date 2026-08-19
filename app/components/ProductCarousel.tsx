@@ -90,7 +90,7 @@ export function ProductCarousel({
       <div
         ref={scroller}
         onScroll={sync}
-        className="scrollbar-none -mx-1 flex snap-x snap-mandatory gap-4 overflow-x-auto px-1 pb-2"
+        className="scrollbar-none -mx-1 flex snap-x snap-mandatory gap-4 overflow-x-auto px-1 pb-2 pt-1"
       >
         {products.map((product, i) => (
           <div

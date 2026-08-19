@@ -184,6 +184,12 @@
   animation-duration: 70s;
 }
 
+/* сезонните категории: 2×7 плочки по 360px + отстояния ≈ 5100px;
+   65s дава около 39px/s */
+.marquee-categories {
+  animation-duration: 65s;
+}
+
 /* спира при задържане, за да може човек да прочете и кликне лого */
 .group\/marquee:hover .marquee,
 .group\/marquee:focus-within .marquee {

@@ -45,6 +45,14 @@ const HERO_SLIDES: HeroSlide[] = [
     src: 'https://cdncloudcart.com/13688/files/image/website-banner-nexe-autumn-2026.png',
     alt: 'NEXE есен 2026',
   },
+  {
+    // Трети банер, сглобен от нас: рамка 1920x640, същото съотношение 3:1
+    // като другите два, за да не подскача височината при смяна на слайда.
+    // Продуктът, цената и курсът са реални.
+    src: '/hero/kosachka-oferta.jpg',
+    alt: 'Сезонна оферта: косачка RAIDER RD-LM18 за 76,59 €',
+    url: '/products/kosachka-raider-rd-lm18',
+  },
 ];
 
 export async function loader({context, request}: Route.LoaderArgs) {

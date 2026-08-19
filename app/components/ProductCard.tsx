@@ -94,7 +94,11 @@ export function ProductCard({
   const currencyCode = product.priceRange?.minVariantPrice?.currencyCode;
 
   return (
-    <article className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-gray-200 bg-white transition-all duration-200 hover:-translate-y-1 hover:border-brand/45 hover:shadow-[0_14px_32px_-16px_rgba(60,180,74,0.55)]">
+    <article /* Един-единствен ефект при задържане: зеленият кант.
+         Повдигането и сянката са махнати — при повдигане горният ръб
+         излизаше извън скролиращия контейнер на каруселa и се отрязваше,
+         затова кантът не се виждаше отгоре. */
+      className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-gray-200 bg-white transition-colors duration-200 hover:border-brand">
       <div className="relative p-3">
         {/* 4/3, а не квадрат: при 4 карти на цял екран картата е ~460px
             широка и квадратната снимка правеше секцията 600px висока */}
@@ -104,7 +108,7 @@ export function ProductCard({
               data={product.featuredImage}
               alt={product.title}
               loading={loading}
-              className="size-full rounded-none object-contain p-2 transition-transform duration-300 group-hover:scale-[1.04]"
+              className="size-full rounded-none object-contain p-2"
             />
           ) : (
             <img
