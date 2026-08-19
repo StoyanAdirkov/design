@@ -30,30 +30,101 @@ export interface CategoryCopy {
 }
 
 /**
- * Снимка за всяка главна категория.
+ * Снимки за всяка главна категория — две различни.
  *
- * Файловете вече стоят в /public/nav и се ползват в мегаменюто — същите,
- * които преминаха през твоя преглед. Подкатегория без своя снимка взима
- * тази на главната си: по-добре вярна снимка на раздела, отколкото
- * случайна снимка на подраздела.
+ * `hero` е за заглавната лента горе, `copy` е за описателния блок долу.
+ * Нарочно са различни кадри: една и съща снимка два пъти на една страница
+ * личи веднага и изглежда като пропуск, а не като решение.
+ *
+ * Кадрирани са предварително — hero в 4:3 (1100×800), а не в готовата
+ * форма на лентата. Лентата показва само дясната ѝ част и я реже още
+ * веднъж през CSS; при предварителен кроп 1600×460 двойното рязане
+ * изяждаше темата — от чугунения радиатор оставаха само ребра.
+ *
+ * Подкатегория без свои снимки взима тези на главната си.
  */
-const ROOT_IMAGES: Record<string, {src: string; alt: string; icon: string}> = {
-  stroitelstvo: {src: '/nav/stroitelstvo.jpg', alt: 'Строителни материали на обект', icon: 'building'},
-  'boi-lakove-i-mazilki': {src: '/nav/boi.jpg', alt: 'Бои, четки и валяци', icon: 'paint'},
+interface RootArt {
+  /** Широката снимка за заглавната лента */
+  hero: string;
+  /** Снимката до описателния текст в дъното */
+  copy: string;
+  alt: string;
+  icon: string;
+}
+
+const ROOT_ART: Record<string, RootArt> = {
+  stroitelstvo: {
+    hero: '/cat/hero/stroitelstvo.jpg',
+    copy: '/cat/copy/stroitelstvo.jpg',
+    alt: 'Строителни материали на склад',
+    icon: 'building',
+  },
+  'boi-lakove-i-mazilki': {
+    hero: '/cat/hero/boi.jpg',
+    copy: '/cat/copy/boi.jpg',
+    alt: 'Боядисване с валяк',
+    icon: 'paint',
+  },
   'instrumenti-krepejni-elementi-pomoshtni-sredstva': {
-    src: '/nav/instrumenti.jpg',
-    alt: 'Ръчни и електроинструменти',
+    hero: '/cat/hero/instrumenti.jpg',
+    copy: '/cat/copy/instrumenti.jpg',
+    alt: 'Стена с ръчни и електроинструменти',
     icon: 'tool',
   },
-  'ovk-vik': {src: '/nav/vik.jpg', alt: 'ВиК материали и фитинги', icon: 'pipe'},
-  otoplenie: {src: '/nav/otoplenie.jpg', alt: 'Отопление и електроуреди', icon: 'flame'},
-  'elektromateriali-i-osvetlenie': {src: '/nav/osvetlenie.jpg', alt: 'Осветление и електроматериали', icon: 'bulb'},
-  'banya-i-kuhnya': {src: '/nav/banya.jpg', alt: 'Обзавеждане за баня', icon: 'bath'},
-  'podovi-pokritiya': {src: '/nav/podovi.jpg', alt: 'Подови и стенни покрития', icon: 'floor'},
-  'pomoshtni-rabotni-sredstva': {src: '/nav/obleklo.jpg', alt: 'Работно облекло и защитни средства', icon: 'helmet'},
-  avto: {src: '/nav/avto.jpg', alt: 'Авто аксесоари и консумативи', icon: 'car'},
-  gradina: {src: '/nav/gradina.jpg', alt: 'Градински инструменти и техника', icon: 'garden'},
-  'interior-i-obzavejdane': {src: '/nav/za-doma.jpg', alt: 'Обзавеждане и декорация за дома', icon: 'home'},
+  'ovk-vik': {
+    hero: '/cat/hero/vik.jpg',
+    copy: '/cat/copy/vik.jpg',
+    alt: 'Тръби и фитинги',
+    icon: 'pipe',
+  },
+  otoplenie: {
+    hero: '/cat/hero/otoplenie.jpg',
+    copy: '/cat/copy/otoplenie.jpg',
+    alt: 'Радиатор за отопление',
+    icon: 'flame',
+  },
+  'elektromateriali-i-osvetlenie': {
+    hero: '/cat/hero/osvetlenie.jpg',
+    copy: '/cat/copy/osvetlenie.jpg',
+    alt: 'Осветителни тела с топла светлина',
+    icon: 'bulb',
+  },
+  'banya-i-kuhnya': {
+    hero: '/cat/hero/banya.jpg',
+    copy: '/cat/copy/banya.jpg',
+    alt: 'Модерна баня',
+    icon: 'bath',
+  },
+  'podovi-pokritiya': {
+    hero: '/cat/hero/podovi.jpg',
+    copy: '/cat/copy/podovi.jpg',
+    alt: 'Дървено подово покритие',
+    icon: 'floor',
+  },
+  'pomoshtni-rabotni-sredstva': {
+    hero: '/cat/hero/obleklo.jpg',
+    copy: '/cat/copy/obleklo.jpg',
+    alt: 'Каски и светлоотразителни жилетки',
+    icon: 'helmet',
+  },
+  avto: {
+    hero: '/cat/hero/avto.jpg',
+    copy: '/cat/copy/avto.jpg',
+    alt: 'Автомобил в сервиз',
+    icon: 'car',
+  },
+  gradina: {
+    hero: '/cat/hero/gradina.jpg',
+    copy: '/cat/copy/gradina.jpg',
+    alt: 'Поливане в градината',
+    icon: 'garden',
+  },
+  'interior-i-obzavejdane': {
+    hero: '/cat/hero/za-doma.jpg',
+    copy: '/cat/copy/za-doma.jpg',
+    alt: 'Етажерка с домашни аксесоари',
+    icon: 'home',
+  },
 };
 
 const COPY: Record<string, CategoryCopy> = {
@@ -205,10 +276,9 @@ export function getCategoryCopy(
   /** Handle на главната категория — оттам идва снимката при подразделите. */
   rootHandle?: string | null,
 ): CategoryCopy | null {
-  const art =
-    ROOT_IMAGES[handle] ?? (rootHandle ? ROOT_IMAGES[rootHandle] : undefined);
+  const art = ROOT_ART[handle] ?? (rootHandle ? ROOT_ART[rootHandle] : undefined);
   const withImage = (c: CategoryCopy): CategoryCopy =>
-    c.image || !art ? c : {...c, image: art.src, imageAlt: art.alt};
+    c.image || !art ? c : {...c, image: art.copy, imageAlt: art.alt};
 
   const hit = COPY[handle];
   if (hit) return withImage(hit);
@@ -225,12 +295,8 @@ export function getCategoryCopy(
   return withImage({heading: title, paragraphs});
 }
 
-/** Снимка и икона на главната категория — за заглавната лента. */
-export function getRootArt(handle?: string | null): {
-  src: string;
-  alt: string;
-  icon: string;
-} | null {
+/** Снимки и икона на главната категория — за заглавната лента. */
+export function getRootArt(handle?: string | null): RootArt | null {
   if (!handle) return null;
-  return ROOT_IMAGES[handle] ?? null;
+  return ROOT_ART[handle] ?? null;
 }

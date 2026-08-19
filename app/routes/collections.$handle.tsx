@@ -237,7 +237,7 @@ export default function CollectionPage() {
         title={col.title}
         parentTitle={rootHandle !== col.handle ? rootTitle : null}
         tagline={copy?.paragraphs?.[0] ?? col.description}
-        image={art?.src}
+        image={art?.hero}
         icon={art?.icon}
         count={totalCount}
       />
