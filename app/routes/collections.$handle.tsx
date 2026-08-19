@@ -206,11 +206,16 @@ export default function CollectionPage() {
   const children = col.children?.nodes ?? [];
   const showChildren = col.displayChildren && children.length > 0;
 
+  // Първата троха е главната категория — оттам идва снимката, когато
+  // подразделът няма своя.
+  const rootHandle = (col.breadcrumb ?? [])[0]?.handle ?? col.handle;
+
   const copy = getCategoryCopy(
     col.handle,
     col.title,
     totalCount,
     children.map((c: any) => c.title),
+    rootHandle,
   );
 
   // Диапазонът се показва само когато има повече от една страница —

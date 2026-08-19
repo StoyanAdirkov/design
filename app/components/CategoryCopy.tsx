@@ -43,7 +43,7 @@ export function CategoryCopy({
 
   if (!copy) return null;
 
-  const {heading, paragraphs, bullets} = copy;
+  const {heading, paragraphs, bullets, image, imageAlt} = copy;
   const visible = expanded ? paragraphs : paragraphs.slice(0, 2);
   const hasMore = paragraphs.length > 2;
 
@@ -52,12 +52,33 @@ export function CategoryCopy({
       {/* Тънка зелена ивица горе — същият акцент като на картите при hover */}
       <div className="h-1 w-full bg-gradient-to-r from-brand via-brand to-brand/20" />
 
+      {/* Снимката е отляво на текста, а на тесен екран — над него.
+          Фиксирана колона от 15rem, не процент: при процент снимката
+          растеше с екрана и на 1920px изяждаше половината блок. */}
+      <div className="grid gap-0 md:grid-cols-[15rem_minmax(0,1fr)]">
+        {image ? (
+          <div className="relative h-44 overflow-hidden bg-gray-100 md:h-full md:min-h-[13rem]">
+            <img
+              src={image}
+              alt={imageAlt ?? ''}
+              loading="lazy"
+              decoding="async"
+              className="absolute inset-0 size-full object-cover"
+            />
+            {/* Лек градиент към фона на блока, за да не реже рязко */}
+            <div
+              aria-hidden="true"
+              className="absolute inset-0 bg-gradient-to-t from-black/15 to-transparent md:bg-gradient-to-r md:from-transparent md:to-gray-50/60"
+            />
+          </div>
+        ) : null}
+
       <div className="p-6 md:p-8">
         <h2 className="mb-4 text-lg font-bold tracking-tight text-dark md:text-xl">
           {heading ?? title}
         </h2>
 
-        <div className="grid gap-6 md:grid-cols-[minmax(0,1fr)_auto] md:gap-10">
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:gap-10">
           <div className="max-w-3xl">
             {visible.map((p, i) => (
               <p key={i} className="mb-3 text-[0.9rem] leading-relaxed text-gray-600 last:mb-0">
@@ -78,7 +99,7 @@ export function CategoryCopy({
           </div>
 
           {bullets && bullets.length > 0 && (
-            <ul className="flex shrink-0 list-none flex-col gap-2.5 p-0 md:max-w-xs">
+            <ul className="flex shrink-0 list-none flex-col gap-2.5 p-0 lg:max-w-xs">
               {bullets.map((b) => (
                 <li key={b} className="flex items-start gap-2 text-[0.85rem] leading-snug text-gray-700">
                   <span className="mt-0.5 flex size-4 shrink-0 items-center justify-center rounded-full bg-brand/15">
@@ -90,6 +111,7 @@ export function CategoryCopy({
             </ul>
           )}
         </div>
+      </div>
       </div>
     </section>
   );

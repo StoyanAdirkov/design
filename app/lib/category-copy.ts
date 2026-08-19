@@ -20,11 +20,40 @@
 export interface CategoryCopy {
   /** Заглавие на секцията. Ако липсва, се сглобява от името на категорията. */
   heading?: string;
+  /** Снимка към текста. Попълва се автоматично от главната категория. */
+  image?: string;
+  imageAlt?: string;
   /** Абзаци. Първият носи основните ключови думи. */
   paragraphs: string[];
   /** Кратки булети — предимства или какво включва категорията. */
   bullets?: string[];
 }
+
+/**
+ * Снимка за всяка главна категория.
+ *
+ * Файловете вече стоят в /public/nav и се ползват в мегаменюто — същите,
+ * които преминаха през твоя преглед. Подкатегория без своя снимка взима
+ * тази на главната си: по-добре вярна снимка на раздела, отколкото
+ * случайна снимка на подраздела.
+ */
+const ROOT_IMAGES: Record<string, {src: string; alt: string}> = {
+  stroitelstvo: {src: '/nav/stroitelstvo.jpg', alt: 'Строителни материали на обект'},
+  'boi-lakove-i-mazilki': {src: '/nav/boi.jpg', alt: 'Бои, четки и валяци'},
+  'instrumenti-krepejni-elementi-pomoshtni-sredstva': {
+    src: '/nav/instrumenti.jpg',
+    alt: 'Ръчни и електроинструменти',
+  },
+  'ovk-vik': {src: '/nav/vik.jpg', alt: 'ВиК материали и фитинги'},
+  otoplenie: {src: '/nav/otoplenie.jpg', alt: 'Отопление и електроуреди'},
+  'elektromateriali-i-osvetlenie': {src: '/nav/osvetlenie.jpg', alt: 'Осветление и електроматериали'},
+  'banya-i-kuhnya': {src: '/nav/banya.jpg', alt: 'Обзавеждане за баня'},
+  'podovi-pokritiya': {src: '/nav/podovi.jpg', alt: 'Подови и стенни покрития'},
+  'pomoshtni-rabotni-sredstva': {src: '/nav/obleklo.jpg', alt: 'Работно облекло и защитни средства'},
+  avto: {src: '/nav/avto.jpg', alt: 'Авто аксесоари и консумативи'},
+  gradina: {src: '/nav/gradina.jpg', alt: 'Градински инструменти и техника'},
+  'interior-i-obzavejdane': {src: '/nav/za-doma.jpg', alt: 'Обзавеждане и декорация за дома'},
+};
 
 const COPY: Record<string, CategoryCopy> = {
   stroitelstvo: {
@@ -172,9 +201,16 @@ export function getCategoryCopy(
   title: string,
   productCount?: number | null,
   childTitles: string[] = [],
+  /** Handle на главната категория — оттам идва снимката при подразделите. */
+  rootHandle?: string | null,
 ): CategoryCopy | null {
+  const art =
+    ROOT_IMAGES[handle] ?? (rootHandle ? ROOT_IMAGES[rootHandle] : undefined);
+  const withImage = (c: CategoryCopy): CategoryCopy =>
+    c.image || !art ? c : {...c, image: art.src, imageAlt: art.alt};
+
   const hit = COPY[handle];
-  if (hit) return hit;
+  if (hit) return withImage(hit);
 
   if (!productCount || productCount < 4) return null;
 
@@ -185,5 +221,5 @@ export function getCategoryCopy(
     }. Цените са с включено ДДС и важат както онлайн, така и в 26-те ни обекта в страната.`,
     'Ако не откривате нужния артикул или ви трябва количество за цял обект, обадете се на 02 81 80 826 — проверяваме наличността по складове и уточняваме срок.',
   ];
-  return {heading: title, paragraphs};
+  return withImage({heading: title, paragraphs});
 }
