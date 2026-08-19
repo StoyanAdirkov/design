@@ -67,42 +67,62 @@ export function SocialFeed({className = ''}: {className?: string}) {
         </a>
       </div>
 
-      {/* плочките — от край до край, с хоризонтален скрол */}
-      <div className="scrollbar-none relative flex snap-x snap-mandatory overflow-x-auto">
-        {SOCIAL_POSTS.map((post) => (
-          <a
-            key={post.id}
-            href={SOCIAL_PROFILE.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group relative block aspect-square w-[46%] shrink-0 snap-start overflow-hidden sm:w-[31%] md:w-[23%] lg:w-[16.666%] xl:w-[12.5%] hover:no-underline"
-          >
-            <img
-              src={post.image}
-              alt=""
-              aria-hidden="true"
-              loading="lazy"
-              className="size-full rounded-none object-cover transition-transform duration-500 group-hover:scale-110"
-            />
+      {/* Плочките се движат непрекъснато.
+          Пистата е дублирана, за да няма шев; копието е aria-hidden, за
+          да не се чете два пъти. Спира при задържане, за да може човек
+          да прочете текста, и не се движи при prefers-reduced-motion.
 
-            {/* при задържане излиза текстът и броячите */}
-            <span className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-ink via-ink/60 to-transparent p-3 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-              <span className="line-clamp-3 text-[0.72rem] leading-snug text-gray-200">
-                {post.caption}
-              </span>
-              <span className="mt-2 flex items-center gap-3 text-[0.72rem] font-semibold text-white">
-                <span className="flex items-center gap-1">
-                  <HeartIcon className="size-3.5 text-brand-bright" />
-                  {post.likes}
-                </span>
-                <span className="flex items-center gap-1">
-                  <ChatBubbleOvalLeftIcon className="size-3.5 text-brand-bright" />
-                  {post.comments}
-                </span>
-              </span>
-            </span>
-          </a>
-        ))}
+          Плочките са с ФИКСИРАНА ширина, а не процентна — при процентна
+          дублираната писта не се получава точно 200% и шевът се вижда. */}
+      <div className="group/marquee relative overflow-hidden">
+        <div className="marquee marquee-social flex w-max">
+          {[false, true].map((isClone) => (
+            <div
+              key={isClone ? 'clone' : 'main'}
+              className="flex shrink-0"
+              aria-hidden={isClone || undefined}
+            >
+              {SOCIAL_POSTS.map((post) => (
+                <a
+                  key={`${isClone ? 'c' : 'm'}-${post.id}`}
+                  href={SOCIAL_PROFILE.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  tabIndex={isClone ? -1 : undefined}
+                  className="group relative block size-[180px] shrink-0 overflow-hidden hover:no-underline sm:size-[220px] lg:size-[250px]"
+                >
+                  <img
+                    src={post.image}
+                    alt=""
+                    aria-hidden="true"
+                    loading="lazy"
+                    className="size-full rounded-none object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+
+                  <span className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-ink via-ink/60 to-transparent p-3 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                    <span className="line-clamp-3 text-[0.72rem] leading-snug text-gray-200">
+                      {post.caption}
+                    </span>
+                    <span className="mt-2 flex items-center gap-3 text-[0.72rem] font-semibold text-white">
+                      <span className="flex items-center gap-1">
+                        <HeartIcon className="size-3.5 text-brand-bright" />
+                        {post.likes}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <ChatBubbleOvalLeftIcon className="size-3.5 text-brand-bright" />
+                        {post.comments}
+                      </span>
+                    </span>
+                  </span>
+                </a>
+              ))}
+            </div>
+          ))}
+        </div>
+
+        {/* меко избледняване в двата края */}
+        <div className="pointer-events-none absolute inset-y-0 left-0 w-20 bg-gradient-to-r from-ink to-transparent" />
+        <div className="pointer-events-none absolute inset-y-0 right-0 w-20 bg-gradient-to-l from-ink to-transparent" />
       </div>
     </section>
   );
