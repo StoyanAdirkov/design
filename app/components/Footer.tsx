@@ -8,6 +8,7 @@ import {
   BuildingStorefrontIcon,
   TruckIcon,
 } from '@heroicons/react/24/outline';
+import {PaymentIcons} from './PaymentIcons';
 import {NewsletterForm} from './NewsletterForm';
 import {STORES, STORE_HOURS} from '~/lib/stores';
 import {SOCIAL_PROFILE} from '~/lib/social';
@@ -186,17 +187,24 @@ export function Footer({shop}: FooterProps) {
         </div>
       </div>
 
-      {/* обещанията */}
+      {/* обещанията + начините на плащане.
+          Плащанията са в същия ред, а не на свой: и двете са неща, които
+          купувачът проверява преди да поръча, и заедно държат един ред
+          вместо да разтягат футъра с още една лента. */}
       <div className="relative border-t border-hairline">
-        <div className="mx-auto flex max-w-[1400px] flex-wrap gap-x-8 gap-y-3 px-5 py-4 text-[0.8rem] xl:px-8">
-          <span className="flex items-center gap-2">
-            <BuildingStorefrontIcon className="size-4 text-brand" />
-            Вземи безплатно от {STORES.length} обекта
-          </span>
-          <span className="flex items-center gap-2">
-            <TruckIcon className="size-4 text-brand" />
-            Доставка до 2 работни дни
-          </span>
+        <div className="mx-auto flex max-w-[1400px] flex-col gap-5 px-5 py-5 md:flex-row md:items-center md:justify-between md:gap-8 xl:px-8">
+          <div className="flex flex-wrap gap-x-8 gap-y-3 text-[0.8rem]">
+            <span className="flex items-center gap-2">
+              <BuildingStorefrontIcon className="size-4 text-brand" />
+              Вземи безплатно от {STORES.length} обекта
+            </span>
+            <span className="flex items-center gap-2">
+              <TruckIcon className="size-4 text-brand" />
+              Доставка до 2 работни дни
+            </span>
+          </div>
+
+          <PaymentIcons className="shrink-0 md:text-right" />
         </div>
       </div>
 

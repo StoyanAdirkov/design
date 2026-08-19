@@ -2,6 +2,7 @@ import type {ReactNode} from 'react';
 import type {Shop, Menu, CartData} from '@cloudcart/nitrogen';
 import {Header} from './Header';
 import {Footer} from './Footer';
+import {AuraChat} from './AuraChat';
 
 interface PageLayoutProps {
   shop: Shop;
@@ -17,6 +18,10 @@ export function PageLayout({shop, headerMenu, footerMenu, cart, children}: PageL
       <Header shop={shop} menu={headerMenu} cart={cart} />
       <main className="flex-1 w-full px-4 py-6 sm:px-5 md:py-8 xl:px-8">{children}</main>
       <Footer shop={shop} menu={footerMenu} />
+
+      {/* Мълчи, докато настройките от админа не се попълнят —
+          виж AuraChat.tsx */}
+      <AuraChat />
     </div>
   );
 }
