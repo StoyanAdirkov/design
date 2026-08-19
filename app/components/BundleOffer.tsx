@@ -3,7 +3,7 @@ import {useEffect} from 'react';
 import {Link} from 'react-router';
 import type {Product} from '@cloudcart/nitrogen';
 import {Image} from '@cloudcart/nitrogen-react';
-import {PlusIcon, TagIcon} from '@heroicons/react/24/outline';
+import {PlusIcon, TagIcon, CheckIcon} from '@heroicons/react/24/outline';
 import {useAside} from './Aside';
 import {
   BUNDLE_ITEMS,
@@ -100,12 +100,16 @@ export function BundleOffer({products}: {products: Product[]}) {
         <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-stretch lg:gap-6">
           {/* Продуктите се разпъват на цялата лява колона (flex-1 на всяка
               карта), затова между тях и цената вече не зее празно. */}
-          <ul className="flex flex-col items-stretch gap-3 sm:flex-row">
+          {/* Плюсчетата стоят АБСОЛЮТНО в разстоянието, а не в потока.
+              Докато бяха вътре в li-то, те ядяха от ширината му и втората
+              и третата карта излизаха с 21px по-тесни от първата —
+              снимките им се смаляваха и редът не беше подравнен. */}
+          <ul className="flex flex-col items-stretch gap-7 sm:flex-row">
             {picks.map(({product, variant}, i) => (
-              <li key={product.id} className="flex flex-1 items-stretch gap-3">
+              <li key={product.id} className="relative flex flex-1 items-stretch">
                 {i > 0 ? (
                   <PlusIcon
-                    className="size-5 shrink-0 self-center text-brand-bright"
+                    className="absolute -top-[1.65rem] left-1/2 size-5 -translate-x-1/2 text-brand-bright sm:left-[-1.6rem] sm:top-1/2 sm:-translate-x-0 sm:-translate-y-1/2"
                     strokeWidth={2.6}
                     aria-hidden="true"
                   />
@@ -167,6 +171,29 @@ export function BundleOffer({products}: {products: Product[]}) {
             <span className="mt-3 inline-flex w-fit items-center rounded-md bg-brand/15 px-2.5 py-1 text-[0.85rem] font-bold text-brand-bright ring-1 ring-brand/30">
               Спестяваш {money(saved)}
             </span>
+
+            {/* Между отстъпката и бутона зееха 125 празни пиксела: колоната
+                се разпъва по височината на продуктите отляво, а съдържанието
+                ѝ свършва по средата. Мълчаливото свиване на картата щеше да
+                счупи подравняването с продуктите, затова празното се пълни с
+                трите неща, които купувачът и без това проверява преди да
+                натисне бутона. */}
+            <ul className="mt-4 flex list-none flex-col gap-2 border-t border-hairline p-0 pt-4">
+              {[
+                `${picks.length} артикула с едно кликане`,
+                'Доставка до 2 работни дни',
+                'Или безплатно от 26-те обекта',
+              ].map((line) => (
+                <li key={line} className="flex items-center gap-2 text-[0.8rem] text-gray-400">
+                  <CheckIcon
+                    className="size-3.5 shrink-0 text-brand-bright"
+                    strokeWidth={3}
+                    aria-hidden="true"
+                  />
+                  {line}
+                </li>
+              ))}
+            </ul>
 
             {canAddAll ? (
               <fetcher.Form method="post" action="/cart" className="mt-auto pt-4">

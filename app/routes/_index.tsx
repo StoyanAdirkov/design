@@ -15,6 +15,7 @@ import {CategoryCarousel} from '~/components/CategoryCarousel';
 import {SEASONAL_CATEGORIES} from '~/lib/seasonal-categories';
 import {BundleOffer} from '~/components/BundleOffer';
 import {QualityBand} from '~/components/QualityBand';
+import {PartnerBand} from '~/components/PartnerBand';
 import {BUNDLE_ITEMS} from '~/lib/bundle';
 import {SALE_PICKS, SALE_PERCENT, SALE_ENABLED, SALE_TITLE, SALE_SUBTITLE} from '~/lib/sale';
 import {ClubCard} from '~/components/ClubCard';
@@ -179,6 +180,10 @@ export default function Homepage() {
           categories={SEASONAL_CATEGORIES}
         />
       </div>
+
+      {/* ⚠ Изключено: твърдението за партньорство не е потвърдено.
+          Виж бележката в PartnerBand.tsx. */}
+      <PartnerBand className="mt-12" />
 
       <div className="mt-12">
         <Suspense fallback={<div className="h-[420px] animate-pulse rounded-2xl bg-gray-100 lg:h-[340px]" />}>
