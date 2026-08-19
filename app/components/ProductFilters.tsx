@@ -105,8 +105,23 @@ export function ProductFilters({filters = [], totalCount}: ProductFiltersProps) 
     navigate('?', {preventScrollReset: true});
   }
 
+  // Разпознаваме филтрите по списък, а не „всичко, което не е sort/page“.
+  // При второто всеки utm_source от реклама пали „Изчисти филтрите“ и
+  // купувачът вижда бутон, който няма какво да изчисти.
+  const FILTER_KEYS = [
+    'available',
+    'minPrice',
+    'maxPrice',
+    'vendor',
+    'tag',
+    'onSale',
+    'isNew',
+    'isFeatured',
+    'category',
+    'filter',
+  ];
   const hasActiveFilters = Array.from(searchParams.keys()).some(
-    (k) => !['sort', 'cursor', 'direction', 'page'].includes(k),
+    (k) => FILTER_KEYS.includes(k) || k.startsWith('option_') || k.startsWith('prop_') || k.startsWith('brand_'),
   );
 
   // Сливане на дублиращи се групи + отсяване на безполезните.
