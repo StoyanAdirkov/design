@@ -51,7 +51,11 @@ export function CategoryCarousel({
             prefetch="intent"
             aria-hidden={i >= categories.length || undefined}
             tabIndex={i >= categories.length ? -1 : undefined}
-            className="group relative aspect-[4/3] w-[280px] shrink-0 overflow-hidden rounded-xl bg-ink ring-1 ring-hairline/60 hover:no-underline sm:w-[320px] lg:w-[360px]"
+            // 280px на екран от 390 значеше, че в кадъра се събират
+            // плочка и половина и заглавията се режеха по средата на
+            // думата. При 210px влизат почти две цели и лентата пак се
+            // чете, докато се движи.
+            className="group relative aspect-[4/3] w-[210px] shrink-0 overflow-hidden rounded-xl bg-ink ring-1 ring-hairline/60 hover:no-underline sm:w-[300px] lg:w-[360px]"
           >
             <img
               src={cat.image}
@@ -70,11 +74,11 @@ export function CategoryCarousel({
             {/* зелено сияние, което се появява отдолу */}
             <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-brand/35 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
 
-            <div className="absolute inset-x-0 bottom-0 p-5">
+            <div className="absolute inset-x-0 bottom-0 p-3.5 sm:p-5">
               <span className="mb-1.5 block text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-brand-bright">
                 {cat.kicker}
               </span>
-              <span className="block text-[1.05rem] font-bold leading-tight text-white md:text-[1.15rem]">
+              <span className="block text-[0.92rem] font-bold leading-tight text-white sm:text-[1.05rem] md:text-[1.15rem]">
                 {cat.title}
               </span>
 
