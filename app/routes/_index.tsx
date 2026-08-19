@@ -14,6 +14,7 @@ import {SUMMER_PICKS} from '~/lib/summer';
 import {CategoryCarousel} from '~/components/CategoryCarousel';
 import {SEASONAL_CATEGORIES} from '~/lib/seasonal-categories';
 import {BundleOffer} from '~/components/BundleOffer';
+import {QualityBand} from '~/components/QualityBand';
 import {BUNDLE_ITEMS} from '~/lib/bundle';
 import {SALE_PICKS, SALE_PERCENT, SALE_ENABLED, SALE_TITLE, SALE_SUBTITLE} from '~/lib/sale';
 import {ClubCard} from '~/components/ClubCard';
@@ -186,6 +187,10 @@ export default function Homepage() {
           </Await>
         </Suspense>
       </div>
+
+      {/* Качество, разнообразие, наличност, дълготрайност — с видео.
+          Всички числа са измерени, виж QualityBand.tsx */}
+      <QualityBand className="mt-12" />
 
       {SALE_ENABLED ? (
         <div className="mt-12">

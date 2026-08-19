@@ -20,10 +20,8 @@ import {getCollectionListing} from '~/lib/product-listing';
 import {
   getProject,
   projectCategories,
-  projectsForCollection,
   PROJECT_CATEGORY_CAP,
 } from '~/lib/projects';
-import {ProjectChips} from '~/components/ProjectChips';
 
 /** Продукти на страница. */
 const PAGE_SIZE = 32;
@@ -197,11 +195,12 @@ export async function loader({params, context, request}: Route.LoaderArgs) {
 }
 
 export default function CollectionPage() {
-  const {collection, products, page: currentPage, projectKey, projectIntro} =
-    useLoaderData<typeof loader>();
+  // projectKey/projectIntro идват от лоудъра, но вече не се рисуват:
+  // чиповете „Пазарувай по проект" са премахнати по искане. Логиката за
+  // `?project=` остава жива, за да не се пише наново, ако потрябва.
+  const {collection, products, page: currentPage} = useLoaderData<typeof loader>();
   const [searchParams] = useSearchParams();
   const col = collection as any;
-  const projects = projectsForCollection(col.handle);
 
   // Височината на залепения хедър → CSS променлива, за да знае
   // колоната откъде да започне да се лепи. Виж lib/use-header-offset.ts
@@ -285,20 +284,7 @@ export default function CollectionPage() {
         count={totalCount}
       />
 
-      {/* Подкатегориите и проектите са два отделни входа към каталога:
-          първото е структурата на магазина, второто — задачата на човека.
-          Затова са на отделни редове, категориите отгоре. */}
       <SubcategoryChips items={children} className="mb-7" />
-
-      {/* Пазарувай по проект — виж lib/projects.ts */}
-      {projects.length > 0 && (
-        <ProjectChips
-          projects={projects}
-          active={projectKey}
-          intro={projectIntro}
-          className="mb-8"
-        />
-      )}
 
       {/* Лента с превключвателя. Стои над решетката, за да е на едно
           и също място и когато колоната е скрита. */}
