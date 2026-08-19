@@ -19,6 +19,8 @@ import {SALE_PICKS, SALE_PERCENT, SALE_ENABLED, SALE_TITLE, SALE_SUBTITLE} from 
 import {ClubCard} from '~/components/ClubCard';
 import {ReviewsCarousel} from '~/components/ReviewsCarousel';
 import {BlogGrid} from '~/components/BlogGrid';
+import {SocialFeed} from '~/components/SocialFeed';
+import {SOCIAL_DEMO} from '~/lib/social';
 import {REVIEWS_ENABLED} from '~/lib/reviews';
 
 export const meta: Route.MetaFunction = () =>
@@ -223,6 +225,8 @@ export default function Homepage() {
           )}
         </Await>
       </Suspense>
+
+      {SOCIAL_DEMO ? <SocialFeed className="-mx-4 sm:-mx-5 xl:-mx-8" /> : null}
 
       <section className="mt-12">
         <h2 className="text-2xl font-bold tracking-tight mb-5">Препоръчани продукти</h2>
