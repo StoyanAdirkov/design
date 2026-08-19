@@ -130,10 +130,16 @@ export function BlogGrid({
           </Link>
         </div>
 
+        {/* На телефон остават само водещата и още една: петте карти една
+            под друга заемаха два екрана и блогът избутваше всичко под себе
+            си. Скриват се със CSS, а не със slice — така на desktop и в
+            HTML-а за търсачките петте статии си остават. */}
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <Card article={lead} featured />
-          {rest.map((article) => (
-            <Card key={article.id} article={article} />
+          {rest.map((article, i) => (
+            <div key={article.id} className={i === 0 ? 'h-full' : 'hidden h-full sm:block'}>
+              <Card article={article} />
+            </div>
           ))}
         </div>
       </div>
