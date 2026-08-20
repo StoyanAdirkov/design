@@ -318,11 +318,19 @@ export default function CollectionPage() {
         <button
           type="button"
           onClick={toggleFilters}
-          aria-expanded={showFilters}
+          aria-expanded={mobileOpen || showFilters}
           className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-gray-200 bg-white px-3.5 py-2 text-[0.82rem] font-semibold text-dark transition-colors duration-150 hover:border-brand hover:text-brand-dark"
         >
           <FilterIcon name="more" className="size-4 text-brand" />
-          {showFilters ? 'Скрий филтрите' : 'Филтри'}
+          {/* Надписът следва състоянието, което важи на текущата ширина.
+              При едно общо той казваше „Скрий филтрите" на телефон, докато
+              филтрите бяха скрити. */}
+          <span className="md:hidden">
+            {mobileOpen ? 'Скрий филтрите' : 'Филтри'}
+          </span>
+          <span className="hidden md:inline">
+            {showFilters ? 'Скрий филтрите' : 'Филтри'}
+          </span>
           {activeFilterCount > 0 ? (
             <span className="ml-0.5 inline-flex size-[1.15rem] items-center justify-center rounded-full bg-brand text-[0.66rem] font-bold text-white">
               {activeFilterCount}
