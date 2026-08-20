@@ -47,6 +47,44 @@ export function Header({shop, cart}: HeaderProps) {
     if (closeTimer.current) clearTimeout(closeTimer.current);
   }, []);
 
+  /**
+   * Заключваме страницата, докато мобилното меню е отворено.
+   *
+   * Без това пръстът скролва каталога зад менюто: менюто стои неподвижно,
+   * а съдържанието се движи под него. Изглежда като счупено и се губи
+   * мястото, до което човек е стигнал.
+   *
+   * `position: fixed` върху body, а не само `overflow: hidden` — на iOS
+   * Safari второто не спира инерционния скрол. Позицията се пази и се
+   * връща при затваряне, иначе страницата отскача най-горе. paddingRight
+   * компенсира изчезналия скролбар, за да не подскача съдържанието.
+   */
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const {body, documentElement} = document;
+    const scrollY = window.scrollY;
+    const barWidth = window.innerWidth - documentElement.clientWidth;
+    const prev = {
+      position: body.style.position,
+      top: body.style.top,
+      width: body.style.width,
+      paddingRight: body.style.paddingRight,
+    };
+
+    body.style.position = 'fixed';
+    body.style.top = `-${scrollY}px`;
+    body.style.width = '100%';
+    if (barWidth > 0) body.style.paddingRight = `${barWidth}px`;
+
+    return () => {
+      body.style.position = prev.position;
+      body.style.top = prev.top;
+      body.style.width = prev.width;
+      body.style.paddingRight = prev.paddingRight;
+      window.scrollTo(0, scrollY);
+    };
+  }, [mobileOpen]);
+
   // Escape затваря мегаменюто
   useEffect(() => {
     if (!openCat) return;
