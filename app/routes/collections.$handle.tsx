@@ -411,7 +411,7 @@ export default function CollectionPage() {
         <aside
           className={`${
             mobileOpen
-              ? 'fixed inset-x-3 z-[60] overflow-hidden rounded-xl border border-gray-200 bg-white p-4 pb-0 shadow-2xl'
+              ? 'fixed inset-x-3 z-[60] overflow-hidden rounded-xl border border-gray-200 bg-white p-4 pb-0 pt-0 shadow-2xl'
               : 'hidden'
           } ${
             showFilters ? 'md:block' : 'md:hidden'
@@ -423,7 +423,7 @@ export default function CollectionPage() {
         >
           {/* Лента на панела — на телефон бутонът-превключвател остава зад
               затъмнението, затова изходът трябва да е вътре. */}
-          <div className="sticky top-0 z-10 -mx-4 -mt-4 mb-3 flex items-center justify-between border-b border-gray-200 bg-white px-4 pb-3 pt-4 md:hidden">
+          <div className="sticky top-0 z-10 -mx-4 mb-3 flex items-center justify-between border-b border-gray-200 bg-white px-4 pb-3 pt-4 md:hidden">
             <span className="text-[0.95rem] font-bold text-dark">Филтри</span>
             <button
               type="button"
