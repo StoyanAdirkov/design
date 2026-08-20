@@ -22,6 +22,7 @@ import {
   projectCategories,
   PROJECT_CATEGORY_CAP,
 } from '~/lib/projects';
+import {XMarkIcon} from '@heroicons/react/24/outline';
 
 /** Продукти на страница. */
 const PAGE_SIZE = 32;
@@ -229,6 +230,45 @@ export default function CollectionPage() {
     }
   }, []);
 
+  /**
+   * Докато панелът с филтри е отворен, страницата под него не се движи —
+   * същото поведение като при мобилното меню. `position: fixed` върху
+   * body, а не само `overflow: hidden`: на iOS Safari второто не спира
+   * инерционния скрол.
+   *
+   * Проверката „вече ли е заключено“ е заради хедъра: той има свое
+   * заключване и ако някой отвори менюто върху отворени филтри, вторият
+   * ефект би запомнил вече подменените стойности и при затваряне би ги
+   * върнал сгрешени. Който е заключил пръв, той отключва.
+   */
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const {body, documentElement} = document;
+    if (body.style.position === 'fixed') return;
+
+    const scrollY = window.scrollY;
+    const barWidth = window.innerWidth - documentElement.clientWidth;
+    const prev = {
+      position: body.style.position,
+      top: body.style.top,
+      width: body.style.width,
+      paddingRight: body.style.paddingRight,
+    };
+
+    body.style.position = 'fixed';
+    body.style.top = `-${scrollY}px`;
+    body.style.width = '100%';
+    if (barWidth > 0) body.style.paddingRight = `${barWidth}px`;
+
+    return () => {
+      body.style.position = prev.position;
+      body.style.top = prev.top;
+      body.style.width = prev.width;
+      body.style.paddingRight = prev.paddingRight;
+      window.scrollTo(0, scrollY);
+    };
+  }, [mobileOpen]);
+
   const toggleFilters = () => {
     setMobileOpen((v) => !v);
     setShowFilters((v) => {
@@ -346,6 +386,19 @@ export default function CollectionPage() {
           showFilters ? 'md:grid-cols-[240px_minmax(0,1fr)] md:gap-10' : ''
         }`}
       >
+        {/* Затъмнението зад панела — както при мобилното меню. Затваря при
+            докосване встрани и е скрито от екранния четец: бутонът
+            „Затвори“ вътре в панела върши същото и с име. */}
+        {mobileOpen ? (
+          <button
+            type="button"
+            aria-hidden="true"
+            tabIndex={-1}
+            onClick={toggleFilters}
+            className="fixed inset-0 z-50 w-full cursor-default border-none bg-black/50 p-0 md:hidden"
+          />
+        ) : null}
+
         {/* Колоната е в HTML-а винаги; видимостта е класове, не условие.
             Така сървърът връща верния екран още преди React да тръгне.
 
@@ -356,14 +409,32 @@ export default function CollectionPage() {
             идва от inline стила и важи на всяка ширина; без него
             съдържанието преливаше върху продуктите. */}
         <aside
-          className={`${mobileOpen ? 'block' : 'hidden'} ${
+          className={`${
+            mobileOpen
+              ? 'fixed inset-x-3 z-[60] rounded-xl border border-gray-200 bg-white p-4 shadow-2xl'
+              : 'hidden'
+          } ${
             showFilters ? 'md:block' : 'md:hidden'
-          } order-1 mb-4 overflow-y-auto overscroll-contain rounded-xl border border-gray-200 p-4 md:mb-0 md:sticky md:self-start md:rounded-none md:border-0 md:p-0 md:pr-1 md:[scrollbar-width:thin]`}
+          } order-1 overflow-y-auto overscroll-contain md:inset-x-auto md:z-auto md:mb-0 md:rounded-none md:border-0 md:bg-transparent md:p-0 md:pr-1 md:shadow-none md:sticky md:self-start md:[scrollbar-width:thin]`}
           style={{
             top: 'calc(var(--mm-header, 160px) + 0.75rem)',
             maxHeight: 'calc(100dvh - var(--mm-header, 160px) - 1.5rem)',
           }}
         >
+          {/* Лента на панела — на телефон бутонът-превключвател остава зад
+              затъмнението, затова изходът трябва да е вътре. */}
+          <div className="-mx-4 mb-3 flex items-center justify-between border-b border-gray-200 px-4 pb-3 md:hidden">
+            <span className="text-[0.95rem] font-bold text-dark">Филтри</span>
+            <button
+              type="button"
+              onClick={toggleFilters}
+              aria-label="Затвори филтрите"
+              className="-mr-1 flex size-8 cursor-pointer items-center justify-center rounded-lg border-none bg-transparent text-gray-500 hover:text-dark"
+            >
+              <XMarkIcon className="size-5" />
+            </button>
+          </div>
+
           <ProductFilters filters={(products as any).filters} totalCount={totalCount}>
             <SubcategoryFilter
               items={children}
@@ -381,7 +452,7 @@ export default function CollectionPage() {
           <button
             type="button"
             onClick={() => setMobileOpen(false)}
-            className="mt-4 w-full cursor-pointer rounded-lg bg-brand px-4 py-2.5 text-[0.85rem] font-semibold text-white md:hidden"
+            className="sticky bottom-0 -mx-4 -mb-4 mt-4 w-[calc(100%+2rem)] cursor-pointer border-none bg-brand px-4 py-3 text-[0.85rem] font-semibold text-white md:hidden"
           >
             Покажи {new Intl.NumberFormat('bg-BG').format(totalCount ?? 0)} продукта
           </button>
