@@ -176,7 +176,7 @@ export function ProductForm({product, selectedVariant}: ProductFormProps) {
 function StockIndicator({variant}: {variant: any}) {
   if (!variant.availableForSale) {
     return (
-      <div className="mb-5 text-xs font-medium">
+      <div className="mb-5 mt-2 text-xs font-medium">
         <span className="text-red-600">{variant.statusName || 'Няма наличност'}</span>
       </div>
     );
@@ -184,7 +184,7 @@ function StockIndicator({variant}: {variant: any}) {
 
   if (variant.currentlyNotInStock) {
     return (
-      <div className="mb-5 text-xs font-medium">
+      <div className="mb-5 mt-2 text-xs font-medium">
         <span className="text-brand">Предварителна поръчка</span>
       </div>
     );
@@ -192,7 +192,7 @@ function StockIndicator({variant}: {variant: any}) {
 
   if (variant.quantityAvailable != null && variant.quantityAvailable > 0 && variant.quantityAvailable <= 5) {
     return (
-      <div className="mb-5 text-xs font-medium">
+      <div className="mb-5 mt-2 text-xs font-medium">
         <span className="text-orange-600">Остават само {variant.quantityAvailable} бр.</span>
       </div>
     );
@@ -201,7 +201,7 @@ function StockIndicator({variant}: {variant: any}) {
   // Bauhaus показва точния брой („В НАЛИЧНОСТ 22 бр.“). Числото е
   // по-убедително от думата и подтиква към по-голяма поръчка.
   return (
-    <div className="mb-5 text-xs font-medium">
+    <div className="mb-5 mt-2 text-xs font-medium">
       <span className="text-green-600 before:mr-1.5 before:inline-block before:size-1.5 before:rounded-full before:bg-current before:align-middle before:content-['']">
         В наличност
       </span>
