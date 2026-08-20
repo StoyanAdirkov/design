@@ -411,11 +411,11 @@ export default function CollectionPage() {
         <aside
           className={`${
             mobileOpen
-              ? 'fixed inset-x-3 z-[60] rounded-xl border border-gray-200 bg-white p-4 shadow-2xl'
+              ? 'fixed inset-x-3 z-[60] overflow-hidden rounded-xl border border-gray-200 bg-white p-4 pb-0 shadow-2xl'
               : 'hidden'
           } ${
             showFilters ? 'md:block' : 'md:hidden'
-          } order-1 overflow-y-auto overscroll-contain md:inset-x-auto md:z-auto md:mb-0 md:rounded-none md:border-0 md:bg-transparent md:p-0 md:pr-1 md:shadow-none md:sticky md:self-start md:[scrollbar-width:thin]`}
+          } order-1 overflow-y-auto overscroll-contain md:inset-x-auto md:z-auto md:mb-0 md:overflow-y-auto md:rounded-none md:border-0 md:bg-transparent md:p-0 md:pb-0 md:pr-1 md:shadow-none md:sticky md:self-start md:[scrollbar-width:thin]`}
           style={{
             top: 'calc(var(--mm-header, 160px) + 0.75rem)',
             maxHeight: 'calc(100dvh - var(--mm-header, 160px) - 1.5rem)',
@@ -423,7 +423,7 @@ export default function CollectionPage() {
         >
           {/* Лента на панела — на телефон бутонът-превключвател остава зад
               затъмнението, затова изходът трябва да е вътре. */}
-          <div className="-mx-4 mb-3 flex items-center justify-between border-b border-gray-200 px-4 pb-3 md:hidden">
+          <div className="sticky top-0 z-10 -mx-4 -mt-4 mb-3 flex items-center justify-between border-b border-gray-200 bg-white px-4 pb-3 pt-4 md:hidden">
             <span className="text-[0.95rem] font-bold text-dark">Филтри</span>
             <button
               type="button"
@@ -452,7 +452,7 @@ export default function CollectionPage() {
           <button
             type="button"
             onClick={() => setMobileOpen(false)}
-            className="sticky bottom-0 -mx-4 -mb-4 mt-4 w-[calc(100%+2rem)] cursor-pointer border-none bg-brand px-4 py-3 text-[0.85rem] font-semibold text-white md:hidden"
+            className="sticky bottom-0 -mx-4 mt-4 w-[calc(100%+2rem)] cursor-pointer border-none bg-brand px-4 py-3 text-[0.85rem] font-semibold text-white md:hidden"
           >
             Покажи {new Intl.NumberFormat('bg-BG').format(totalCount ?? 0)} продукта
           </button>
