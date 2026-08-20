@@ -99,7 +99,7 @@ export function ProductTabs({
          */
         <RichText
           data={descriptionHtml as string}
-          className="prose prose-gray max-w-[68ch] text-[0.95rem] leading-[1.8] text-gray-700 prose-p:my-4 prose-li:my-1.5 prose-headings:mb-3 prose-headings:mt-7 prose-headings:text-dark prose-strong:font-semibold prose-strong:text-dark prose-ul:my-4 md:text-[1rem]"
+          className="prose-lines prose prose-gray max-w-[68ch] text-[0.95rem] leading-[1.8] text-gray-700 prose-p:my-4 prose-li:my-1.5 prose-headings:mb-3 prose-headings:mt-7 prose-headings:text-dark prose-strong:font-semibold prose-strong:text-dark prose-ul:my-4 md:text-[1rem]"
         />
       );
     }
