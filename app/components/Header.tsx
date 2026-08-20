@@ -320,11 +320,15 @@ export function Header({shop, cart}: HeaderProps) {
           на хедъра остава непроменена, каквото и да се отваря под него. */}
       {mobileOpen ? (
         <div className="absolute inset-x-0 top-full lg:hidden">
-          {/* Затъмнението затваря при докосване встрани. Отместването отгоре
+          {/* Затъмнението затваря при докосване встрани. Скрито е от екранния
+              четец: бургерът вече носи етикет „Затвори менюто“, а два бутона
+              с едно и също име само объркват. С клавиатура се затваря от него
+              или от бутона „Затвори“ най-долу в панела. Отместването отгоре
               следва височината на хедъра за съответната ширина. */}
           <button
             type="button"
-            aria-label="Затвори менюто"
+            aria-hidden="true"
+            tabIndex={-1}
             onClick={() => setMobileOpen(false)}
             className="fixed inset-x-0 bottom-0 top-[68px] w-full cursor-default border-none bg-black/50 p-0 md:top-[110px]"
           />
