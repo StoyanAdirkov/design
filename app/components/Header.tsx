@@ -341,7 +341,10 @@ function MobileNav({onClose}: {onClose: () => void}) {
   const [expanded, setExpanded] = useState<string | null>(null);
 
   return (
-    <div className="glass-panel max-h-[calc(100vh-68px)] overflow-y-auto border-t border-brand/40 lg:hidden">
+    /* Плътен фон, а не „стъкло“: backdrop-filter не се прилага тук, затова
+       от оставащите 4% прозрачност светлите продуктови карти прозираха
+       като призраци точно под текста на менюто. */
+    <div className="glass-panel max-h-[calc(100vh-68px)] overflow-y-auto border-t border-brand/40 [background:var(--color-ink-2)] lg:hidden">
       <div className="px-6 py-4">
         <Form method="get" action="/search" className="relative mb-4" role="search">
           <input
