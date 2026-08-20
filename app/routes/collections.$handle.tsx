@@ -208,22 +208,29 @@ export default function CollectionPage() {
 
   // Показани ли са филтрите.
   //
-  // На desktop започват отворени; на телефон — затворени, защото там
-  // колоната беше под продуктите и на практика не съществуваше.
-  // Изборът се помни, но се чете чак след монтиране: на сървъра няма
-  // localStorage и разминаването би счупило хидратацията.
+  // ДВЕ ОТДЕЛНИ СЪСТОЯНИЯ, а не едно, и причината не е стилистична.
+  // Преди беше едно, с подразбиране „отворено", а на телефон се
+  // затваряше в useEffect. Резултатът: сървърът връщаше HTML с разгъната
+  // колона и до стартирането на React филтрите стояха върху продуктите.
+  // На бавен телефон това е цяла секунда с грешен екран.
+  //
+  // Сега началните стойности са верни още в HTML-а: на телефон
+  // затворено, на desktop отворено. Превключвателят вдига и двете —
+  // `md:` класовете решават кое важи на текущата ширина.
+  const [mobileOpen, setMobileOpen] = useState(false);
   const [showFilters, setShowFilters] = useState(true);
+
   useEffect(() => {
     try {
       const saved = localStorage.getItem('maxxmart:filters');
       if (saved !== null) setShowFilters(saved === '1');
-      else if (window.matchMedia('(max-width: 767px)').matches) setShowFilters(false);
     } catch {
       // блокирано хранилище — оставаме на подразбирането
     }
   }, []);
 
   const toggleFilters = () => {
+    setMobileOpen((v) => !v);
     setShowFilters((v) => {
       try {
         localStorage.setItem('maxxmart:filters', v ? '0' : '1');
@@ -237,8 +244,27 @@ export default function CollectionPage() {
   // Броят активни филтри стои на бутона, за да личи и когато колоната е
   // скрита. Чете се от URL-а, не от window — иначе на сървъра би било
   // друго число и хидратацията щеше да се скара.
+  // Изброяваме по списък с known ключове, а не „всичко освен sort/page":
+  // при второто всеки utm_source или ?fresh=1 се брои за филтър и
+  // бутонът показва зелено кръгче с единица без причина.
+  const FILTER_PARAMS = [
+    'available',
+    'minPrice',
+    'maxPrice',
+    'vendor',
+    'tag',
+    'onSale',
+    'isNew',
+    'isFeatured',
+    'category',
+    'filter',
+  ];
   const activeFilterCount = Array.from(searchParams.entries()).filter(
-    ([k]) => !['sort', 'page', 'cursor', 'direction', 'project', 'v'].includes(k),
+    ([k]) =>
+      FILTER_PARAMS.includes(k) ||
+      k.startsWith('option_') ||
+      k.startsWith('prop_') ||
+      k.startsWith('brand_'),
   ).length;
   const totalCount = (products as any).totalCount as number | null | undefined;
 
@@ -305,37 +331,36 @@ export default function CollectionPage() {
         </button>
       </div>
 
+      {/* Решетката е с колона само когато филтрите се виждат на този
+          екран — на телефон те са над продуктите, не отстрани. */}
       <div
-        className={
-          showFilters
-            ? 'grid gap-8 md:grid-cols-[240px_minmax(0,1fr)] md:gap-10'
-            : 'grid gap-8'
-        }
+        className={`grid gap-8 ${
+          showFilters ? 'md:grid-cols-[240px_minmax(0,1fr)] md:gap-10' : ''
+        }`}
       >
-        {showFilters ? (
-          // Залепена колона: започва точно под хедъра и скролва сама,
-          // когато е по-висока от екрана. Без собствен скрол дългите
-          // списъци с марки просто изчезват под ръба.
-          <aside
-            className="order-2 md:order-1 md:sticky md:self-start md:overflow-y-auto md:overscroll-contain md:pr-1 md:[scrollbar-width:thin]"
-            style={{
-              top: 'calc(var(--mm-header, 160px) + 0.75rem)',
-              maxHeight: 'calc(100dvh - var(--mm-header, 160px) - 1.5rem)',
-            }}
-          >
-            <ProductFilters filters={(products as any).filters} totalCount={totalCount}>
-              <SubcategoryFilter
-                items={children}
-                parent={
-                  rootHandle !== col.handle && rootTitle
-                    ? {title: rootTitle, handle: rootHandle}
-                    : null
-                }
-                currentHandle={col.handle}
-              />
-            </ProductFilters>
-          </aside>
-        ) : null}
+        {/* Колоната е в HTML-а винаги; видимостта е класове, не условие.
+            Така сървърът връща верния екран още преди React да тръгне. */}
+        <aside
+          className={`${mobileOpen ? 'block' : 'hidden'} ${
+            showFilters ? 'md:block' : 'md:hidden'
+          } order-2 mb-2 md:order-1 md:mb-0 md:sticky md:self-start md:overflow-y-auto md:overscroll-contain md:pr-1 md:[scrollbar-width:thin]`}
+          style={{
+            top: 'calc(var(--mm-header, 160px) + 0.75rem)',
+            maxHeight: 'calc(100dvh - var(--mm-header, 160px) - 1.5rem)',
+          }}
+        >
+          <ProductFilters filters={(products as any).filters} totalCount={totalCount}>
+            <SubcategoryFilter
+              items={children}
+              parent={
+                rootHandle !== col.handle && rootTitle
+                  ? {title: rootTitle, handle: rootHandle}
+                  : null
+              }
+              currentHandle={col.handle}
+            />
+          </ProductFilters>
+        </aside>
 
         <div className="order-1 md:order-2">
           <Pagination connection={products}>

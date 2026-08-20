@@ -80,29 +80,50 @@ export function ProductTabs({
   const panel = (id: string) => {
     if (id === 'opisanie') {
       return (
+        /**
+         * Описанието на производителя е низ от редове „Етикет: стойност“
+         * — опаковка, дебелина, състав, технически показатели. Досега
+         * вървеше като 14px проза с 10px между абзаците и се четеше като
+         * сива стена, в която нищо не се намира.
+         *
+         * Промените са три и всяка има причина:
+         *   · 15px вместо 14 и ред 1.8 вместо 1.6 — това е текст, който
+         *     се чете на обект, често с телефон в едната ръка;
+         *   · 16px между абзаците вместо 10 — окото хваща къде свършва
+         *     една мисъл;
+         *
+         * Пробвах и да откроя думата преди двоеточието през ::first-line,
+         * но той хваща целия първи ВИЗУАЛЕН ред, не етикета — при дълъг
+         * абзац удебеляваше случайни думи. За истинско открояване трябва
+         * описанието да се разбие на етикет и стойност още при парсването.
+         */
         <RichText
           data={descriptionHtml as string}
-          className="prose prose-sm prose-gray max-w-[75ch] leading-relaxed prose-p:my-2.5 prose-headings:text-dark prose-strong:text-dark"
+          className="prose prose-gray max-w-[68ch] text-[0.95rem] leading-[1.8] text-gray-700 prose-p:my-4 prose-li:my-1.5 prose-headings:mb-3 prose-headings:mt-7 prose-headings:text-dark prose-strong:font-semibold prose-strong:text-dark prose-ul:my-4 md:text-[1rem]"
         />
       );
     }
 
     if (id === 'parametri') {
       return (
-        <table className="w-full max-w-[75ch] border-collapse">
-          <tbody>
-            {specs.map((prop) => (
-              <tr key={prop.name}>
-                <td className="w-[38%] border-b border-gray-100 py-3 text-[0.8rem] font-semibold uppercase tracking-wide text-gray-500">
-                  {prop.name}
-                </td>
-                <td className="border-b border-gray-100 py-3 text-[0.88rem] text-dark">
-                  {prop.values.join(', ')}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        /* На телефон таблица с колона 38% оставя на стойността шейсет
+           пиксела и всяка се чупи на три реда. Затова там етикетът и
+           стойността са един под друг, а от sm нагоре — в две колони. */
+        <dl className="max-w-[68ch] divide-y divide-gray-100">
+          {specs.map((prop) => (
+            <div
+              key={prop.name}
+              className="grid gap-0.5 py-3.5 sm:grid-cols-[minmax(0,38%)_minmax(0,1fr)] sm:gap-4"
+            >
+              <dt className="text-[0.78rem] font-semibold uppercase tracking-wide text-gray-500 sm:pt-0.5">
+                {prop.name}
+              </dt>
+              <dd className="m-0 text-[0.92rem] leading-relaxed text-dark">
+                {prop.values.join(', ')}
+              </dd>
+            </div>
+          ))}
+        </dl>
       );
     }
 

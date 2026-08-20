@@ -53,7 +53,46 @@ export function Aside({
       if (e.key === 'Escape') close();
     };
     document.addEventListener('keydown', handler);
-    return () => document.removeEventListener('keydown', handler);
+
+    /**
+     * Заключваме страницата отдолу, докато панелът е отворен.
+     *
+     * Без това при отворено меню на телефон пръстът скролва страницата
+     * зад него — менюто стои неподвижно, а каталогът се движи под
+     * полупрозрачния слой. Изглежда като счупено и се губи мястото, до
+     * което човек е стигнал.
+     *
+     * `position: fixed` върху body, а не само `overflow: hidden`:
+     * на iOS Safari второто не спира инерционния скрол. Затова се пази
+     * текущата позиция и се връща при затваряне, иначе страницата
+     * отскача най-горе.
+     *
+     * paddingRight компенсира изчезналия скролбар на desktop — без него
+     * при отваряне цялото съдържание подскача с няколко пиксела вляво.
+     */
+    const {body, documentElement} = document;
+    const scrollY = window.scrollY;
+    const barWidth = window.innerWidth - documentElement.clientWidth;
+    const prev = {
+      position: body.style.position,
+      top: body.style.top,
+      width: body.style.width,
+      paddingRight: body.style.paddingRight,
+    };
+
+    body.style.position = 'fixed';
+    body.style.top = `-${scrollY}px`;
+    body.style.width = '100%';
+    if (barWidth > 0) body.style.paddingRight = `${barWidth}px`;
+
+    return () => {
+      document.removeEventListener('keydown', handler);
+      body.style.position = prev.position;
+      body.style.top = prev.top;
+      body.style.width = prev.width;
+      body.style.paddingRight = prev.paddingRight;
+      window.scrollTo(0, scrollY);
+    };
   }, [close, expanded]);
 
   return (
