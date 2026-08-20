@@ -35,8 +35,11 @@ export function ProductForm({product, selectedVariant}: ProductFormProps) {
 
   return (
     <div>
-      {/* Цената в бранд зелено. Само евро — виж бележката в PriceDual.tsx */}
-      <div className="mt-4" aria-live="polite">
+      {/* Цената в бранд зелено. Само евро — виж бележката в PriceDual.tsx
+          Отстъпът е по-голям от този между редовете над нея: цената е
+          най-важното на екрана и трябва да се откъсва от мета данните,
+          а не да се лепи за последния им ред. */}
+      <div className="mt-6" aria-live="polite">
         {variant ? (
           <PriceCloudCart data={variant.price} />
         ) : hasMultiplePrices ? (

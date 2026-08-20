@@ -213,13 +213,17 @@ function ProductDetails({
     <div className="self-start">
       <h1 className="text-[1.75rem] md:text-[2rem] font-bold tracking-tight leading-tight">{product.title}</h1>
 
-      {/* Мета блокът на CloudCart: Категория на свой ред, отдолу
-          Производител и SKU един до друг, разделени с тънка линия. */}
-      <dl className="mt-4 space-y-1.5 border-t border-gray-200 pt-4 text-[0.85rem]">
+      {/* Мета блокът: етикетите са в собствена колона, за да започват
+          всички стойности на една вертикала. Преди редовете бяха flex и
+          „Категория:“ и „Производител:“ бутаха стойностите си на различно
+          място — окото няма къде да се хване. Тесният екран получава
+          подравняване по съдържание, а от 400px нагоре — фиксирана
+          колона, за да не подскача при по-дълъг етикет. */}
+      <dl className="mt-5 grid grid-cols-[auto_minmax(0,1fr)] gap-x-5 gap-y-2.5 border-y border-gray-200 py-4 text-[0.85rem] min-[400px]:grid-cols-[7.5rem_minmax(0,1fr)]">
         {product.collections?.nodes?.[0] ? (
-          <div className="flex flex-wrap gap-1.5">
-            <dt className="text-gray-500">Категория:</dt>
-            <dd>
+          <>
+            <dt className="text-gray-500">Категория</dt>
+            <dd className="min-w-0">
               <Link
                 to={`/collections/${product.collections.nodes[0].handle}`}
                 className="font-medium text-dark hover:text-brand hover:no-underline"
@@ -227,29 +231,24 @@ function ProductDetails({
                 {product.collections.nodes[0].title}
               </Link>
             </dd>
-          </div>
+          </>
         ) : null}
-        <div className="flex flex-wrap gap-x-8 gap-y-1.5">
+
         {product.vendor ? (
-          <div className="flex gap-1.5">
-            <dt className="text-gray-500">Производител:</dt>
-            <dd>
-              <Link
-                to={`/products?vendor=${encodeURIComponent(product.vendor)}`}
-                className="font-medium text-dark hover:text-brand hover:no-underline"
-              >
-                {product.vendor}
-              </Link>
-            </dd>
-          </div>
+          <>
+            <dt className="text-gray-500">Производител</dt>
+            {/* Без линк: „Всичко от TONDACH →“ отдолу води на същото
+                място и два еднакви линка един под друг само шумят. */}
+            <dd className="min-w-0 font-medium text-dark">{product.vendor}</dd>
+          </>
         ) : null}
+
         {variant?.sku ? (
-          <div className="flex gap-1.5">
-            <dt className="text-gray-500">SKU:</dt>
-            <dd className="font-medium text-dark">{variant.sku}</dd>
-          </div>
+          <>
+            <dt className="text-gray-500">Код</dt>
+            <dd className="min-w-0 font-medium tabular-nums text-dark">{variant.sku}</dd>
+          </>
         ) : null}
-        </div>
       </dl>
 
       {/* „Всичко от [марка]“ — Praktiker го има точно така */}
@@ -257,7 +256,7 @@ function ProductDetails({
         <Link
           to={`/products?vendor=${encodeURIComponent(product.vendor)}`}
           prefetch="intent"
-          className="mt-3 inline-block text-[0.82rem] font-semibold text-brand-dark hover:no-underline hover:brightness-110"
+          className="mt-4 inline-block text-[0.82rem] font-semibold text-brand-dark hover:no-underline hover:brightness-110"
         >
           Всичко от {product.vendor} →
         </Link>
@@ -267,7 +266,7 @@ function ProductDetails({
           отзивите →“ точно под заглавието и това е добър навик: цифрата
           е доверие, а линкът спестява скролване. */}
       {reviewSummary && (reviewCount ?? 0) > 0 ? (
-        <div className="mt-2 flex flex-wrap items-center gap-3">
+        <div className="mt-4 flex flex-wrap items-center gap-3">
           <StarRating
             rating={reviewSummary.averageRating}
             count={reviewCount}
@@ -283,7 +282,7 @@ function ProductDetails({
       ) : (
         <a
           href="#otzivi"
-          className="mt-2 inline-block text-[0.8rem] text-gray-500 hover:text-brand-dark hover:no-underline"
+          className="mt-4 inline-block text-[0.8rem] text-gray-500 hover:text-brand-dark hover:no-underline"
         >
           Още няма отзиви — напиши първия →
         </a>

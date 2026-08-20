@@ -347,11 +347,18 @@ export default function CollectionPage() {
         }`}
       >
         {/* Колоната е в HTML-а винаги; видимостта е класове, не условие.
-            Така сървърът връща верния екран още преди React да тръгне. */}
+            Така сървърът връща верния екран още преди React да тръгне.
+
+            `order-1` и на телефон: преди беше `order-2` и панелът се
+            отваряше ПОД всичките 32 продукта, в дъното на страницата —
+            надписът на бутона се сменяше, а на екрана нищо не помръдваше.
+            Превъртането е без `md:`, защото ограничението на височината
+            идва от inline стила и важи на всяка ширина; без него
+            съдържанието преливаше върху продуктите. */}
         <aside
           className={`${mobileOpen ? 'block' : 'hidden'} ${
             showFilters ? 'md:block' : 'md:hidden'
-          } order-2 mb-2 md:order-1 md:mb-0 md:sticky md:self-start md:overflow-y-auto md:overscroll-contain md:pr-1 md:[scrollbar-width:thin]`}
+          } order-1 mb-4 overflow-y-auto overscroll-contain rounded-xl border border-gray-200 p-4 md:mb-0 md:sticky md:self-start md:rounded-none md:border-0 md:p-0 md:pr-1 md:[scrollbar-width:thin]`}
           style={{
             top: 'calc(var(--mm-header, 160px) + 0.75rem)',
             maxHeight: 'calc(100dvh - var(--mm-header, 160px) - 1.5rem)',
@@ -368,9 +375,19 @@ export default function CollectionPage() {
               currentHandle={col.handle}
             />
           </ProductFilters>
+
+          {/* Изход от панела, без да се търси бутонът най-горе. Само на
+              телефон — на широк екран колоната стои постоянно. */}
+          <button
+            type="button"
+            onClick={() => setMobileOpen(false)}
+            className="mt-4 w-full cursor-pointer rounded-lg bg-brand px-4 py-2.5 text-[0.85rem] font-semibold text-white md:hidden"
+          >
+            Покажи {new Intl.NumberFormat('bg-BG').format(totalCount ?? 0)} продукта
+          </button>
         </aside>
 
-        <div className="order-1 md:order-2">
+        <div className="order-2">
           <Pagination connection={products}>
             {({nodes}) => (
               <div>
