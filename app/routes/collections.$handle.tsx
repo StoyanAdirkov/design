@@ -269,16 +269,26 @@ export default function CollectionPage() {
     };
   }, [mobileOpen]);
 
+  /**
+   * Двете състояния са независими. Преди бутонът вдигаше и двете и
+   * затварянето на панела на телефона запомняше „скрити филтри“ за
+   * широкия екран — човек отваря сайта на компютър и колоната липсва,
+   * без да я е скривал там. Запомня се само изборът, направен на
+   * ширината, на която важи.
+   */
   const toggleFilters = () => {
+    if (window.matchMedia('(min-width: 768px)').matches) {
+      setShowFilters((v) => {
+        try {
+          localStorage.setItem('maxxmart:filters', v ? '0' : '1');
+        } catch {
+          // няма как да го запомним, но превключването пак работи
+        }
+        return !v;
+      });
+      return;
+    }
     setMobileOpen((v) => !v);
-    setShowFilters((v) => {
-      try {
-        localStorage.setItem('maxxmart:filters', v ? '0' : '1');
-      } catch {
-        // няма как да го запомним, но превключването пак работи
-      }
-      return !v;
-    });
   };
 
   // Броят активни филтри стои на бутона, за да личи и когато колоната е
