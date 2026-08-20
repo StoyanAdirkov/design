@@ -342,9 +342,10 @@ function MobileNav({onClose}: {onClose: () => void}) {
 
   return (
     /* Плътен фон, а не „стъкло“: backdrop-filter не се прилага тук, затова
-       от оставащите 4% прозрачност светлите продуктови карти прозираха
-       като призраци точно под текста на менюто. */
-    <div className="glass-panel max-h-[calc(100vh-68px)] overflow-y-auto border-t border-brand/40 [background:var(--color-ink-2)] lg:hidden">
+       от оставащите 4% на .glass-panel светлите продуктови карти прозираха
+       като призраци точно под текста на менюто. Класът е махнат, а не
+       надписан — двата стила са в един слой и редът им не е гарантиран. */
+    <div className="max-h-[calc(100vh-68px)] overflow-y-auto border-t border-brand/40 bg-ink-2 lg:hidden">
       <div className="px-6 py-4">
         <Form method="get" action="/search" className="relative mb-4" role="search">
           <input
