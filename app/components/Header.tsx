@@ -311,8 +311,27 @@ export function Header({shop, cart}: HeaderProps) {
       </div>
 
       {/* ── мобилно меню ─────────────────────────────────────── */}
+      {/* Панелът виси ПОД хедъра, а не В него. Когато стоеше в потока,
+          отварянето му правеше sticky хедъра с ~740px по-висок, цялата
+          страница се избутваше надолу и браузърът компенсираше скрола.
+          Заключването отчиташе вече изместената позиция, затова при
+          затваряне страницата се приземяваше стотици пиксели по-надолу.
+          `absolute top-full` е същият похват като при MegaMenu — височината
+          на хедъра остава непроменена, каквото и да се отваря под него. */}
       {mobileOpen ? (
-        <MobileNav onClose={() => setMobileOpen(false)} />
+        <div className="absolute inset-x-0 top-full lg:hidden">
+          {/* Затъмнението затваря при докосване встрани. Отместването отгоре
+              следва височината на хедъра за съответната ширина. */}
+          <button
+            type="button"
+            aria-label="Затвори менюто"
+            onClick={() => setMobileOpen(false)}
+            className="fixed inset-x-0 bottom-0 top-[68px] w-full cursor-default border-none bg-black/50 p-0 md:top-[110px]"
+          />
+          <div className="relative">
+            <MobileNav onClose={() => setMobileOpen(false)} />
+          </div>
+        </div>
       ) : null}
     </header>
   );
